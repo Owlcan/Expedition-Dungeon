@@ -1,488 +1,363 @@
-/**
- * Master List of All Ingredients and Crafted Items
- * 
- * This file contains a consolidated, alphabetized list of all ingredients
- * and crafted items across the crafting system, each with a unique internal ID.
- * Each item now includes an imagePath property for asset tracking.
- */
+export interface Item {
+    internalId: number;
+    id: string;
+    name: string;
+    type: string;
+    category: string;
+    description: string;
+    biome: string[]; // Add biome tags
+}
 
-// Import the necessary data files
-// Make sure to update these paths if the structure changes
-// const ingredientsFromMain = require('../const ingredients = [');
-// const ingredientsFromData = require('./ingredients');
-// const recipes = require('./recipes');
-
-const masterItemsList = [
-    // === INGREDIENTS ===
+export const items: Item[] = [
     {
         internalId: 1,
-        id: 'azure-cream',
-        name: 'Azure Moon Cream',
-        type: 'ingredient',
-        category: 'legendary',
-        source: 'ice-cream-ingredients',
-        imagePath: 'assets/images/Azure Moon Cream.png'
-    },
-    {
-        internalId: 2,
-        id: 'cream',
-        name: 'Cream',
-        type: 'ingredient',
-        category: 'food',
-        source: 'multiple',
-        imagePath: 'assets/images/Cream.png'
-    },
-    {
-        internalId: 3,
-        id: 'crystal1',
-        name: 'Clear Crystal',
-        type: 'ingredient',
-        category: 'crystal',
-        source: 'ingredients',
-        imagePath: 'assets/images/crystals/crystal1.png'
-    },
-    {
-        internalId: 4,
-        id: 'egg',
-        name: 'Egg',
-        type: 'ingredient',
-        category: 'food',
-        source: 'ice-cream-ingredients',
-        imagePath: 'assets/images/Egg.png'
-    },
-    {
-        internalId: 5,
-        id: 'essence1',
-        name: 'Water Essence',
-        type: 'ingredient',
-        category: 'essence',
-        source: 'ingredients',
-        imagePath: 'assets/images/essences/essence1.png'
-    },
-    {
-        internalId: 6,
-        id: 'herb1',
-        name: 'Common Herb',
-        type: 'ingredient',
-        category: 'herb',
-        source: 'ingredients',
-        imagePath: 'assets/images/herbs/herb1.png'
-    },
-    {
-        internalId: 7,
-        id: 'legendary1',
-        name: 'Phoenix Feather',
-        type: 'ingredient',
-        category: 'legendary',
-        source: 'ingredients',
-        imagePath: 'assets/images/legendary/legendary1.png'
-    },
-    {
-        internalId: 8,
-        id: 'lunar-egg',
-        name: 'Lunar-Dodo Egg',
-        type: 'ingredient',
-        category: 'legendary',
-        source: 'ice-cream-ingredients',
-        imagePath: 'assets/images/Lunar-Dodo Egg.png'
-    },
-    {
-        internalId: 9,
-        id: 'metal1',
-        name: 'Iron Dust',
-        type: 'ingredient',
-        category: 'metal',
-        source: 'ingredients',
-        imagePath: 'assets/images/metals/metal1.png'
-    },
-    {
-        internalId: 10,
-        id: 'night-sky',
-        name: 'Distillation of a Night Sky',
-        type: 'ingredient',
-        category: 'legendary',
-        source: 'ice-cream-ingredients',
-        imagePath: 'assets/images/Distillation of a Night Sky.png'
-    },
-    {
-        internalId: 11,
-        id: 'rock-salt',
-        name: 'Rock Salt',
-        type: 'ingredient',
-        category: 'crystal',
-        source: 'ingredients',
-        imagePath: 'assets/images/crystals/rock-salt.png'
-    },
-    {
-        internalId: 12,
-        id: 'savour-herb',
-        name: 'Savoury Herb',
-        type: 'ingredient',
-        category: 'herb',
-        source: 'ingredients',
-        imagePath: 'assets/images/herbs/Savour Herb.png'
-    },
-    {
-        internalId: 13,
-        id: 'star-sugar',
-        name: 'Star Sugar',
-        type: 'ingredient',
-        category: 'legendary',
-        source: 'ice-cream-ingredients',
-        imagePath: 'assets/images/Star Sugar.png'
-    },
-    {
-        internalId: 14,
-        id: 'starsoaked-vanilla',
-        name: 'Starsoaked Vanilla',
-        type: 'ingredient',
-        category: 'legendary',
-        source: 'ice-cream-ingredients',
-        imagePath: 'assets/images/Starsoaked Vanilla.png'
-    },
-    {
-        internalId: 15,
-        id: 'sugar',
-        name: 'White Sugar',
-        type: 'ingredient',
-        category: 'food',
-        source: 'ice-cream-ingredients',
-        imagePath: 'assets/images/White Sugar.png'
-    },
-    {
-        internalId: 16,
-        id: 'vanilla',
-        name: 'Vanilla',
-        type: 'ingredient',
-        category: 'botanical',
-        source: 'ice-cream-ingredients',
-        imagePath: 'assets/images/Vanilla.png'
-    },
-    
-    // New ingredients from newstuff.txt
-    {
-        internalId: 17,
-        id: 'yarn',
-        name: 'Yarn',
-        type: 'ingredient',
-        category: 'textile',
-        source: 'newstuff',
-        imagePath: 'assets/images/Yarn.png'
-    },
-    {
-        internalId: 18,
-        id: 'darkessence',
-        name: 'Darkessence',
-        type: 'ingredient',
-        category: 'legendary reagent',
-        source: 'newstuff',
-        imagePath: 'assets/images/Darkessence.png'
-    },
-    {
-        internalId: 19,
-        id: 'plasticizer',
-        name: 'Plasticizer',
-        type: 'ingredient',
-        category: 'essence',
-        source: 'newstuff',
-        imagePath: 'assets/images/Plasticizer.png'
-    },
-    {
-        internalId: 20,
-        id: 'vitalium',
-        name: 'Vitalium',
-        type: 'ingredient',
-        category: 'crystal exotic',
-        source: 'newstuff',
-        imagePath: 'assets/images/Vitalium.png'
-    },
-    {
-        internalId: 21,
-        id: 'vitalocanum',
-        name: 'Vitalocanum',
-        type: 'ingredient',
-        category: 'crystal exotic',
-        source: 'newstuff',
-        imagePath: 'assets/images/Vitalocanum.png'
-    },
-    {
-        internalId: 22,
         id: 'adhesive',
         name: 'Adhesive',
         type: 'ingredient',
         category: 'essence',
-        source: 'newstuff',
-        imagePath: 'assets/images/Adhesive.png'
+        description: 'A highly effective, sticky substance with powerful bonding properties, ideal for uniting disparate materials into one cohesive whole.',
+        biome: ['Greensea Forest', 'Lissome Plains']
     },
     {
-        internalId: 23,
-        id: 'cotton-fluff',
-        name: 'Cotton Fluff',
+        internalId: 2,
+        id: 'azure-cream',
+        name: 'Azure Moon Cream',
         type: 'ingredient',
-        category: 'textile crafted',
-        source: 'newstuff',
-        imagePath: 'assets/images/Cotton Fluff.png'
+        category: 'legendary',
+        description: 'Legendary cream harvested under a blue moon. Glows with ethereal light.',
+        biome: ['Greensea Forest']
     },
     {
-        internalId: 24,
-        id: 'petrodistillate',
-        name: 'Petrodistillate',
-        type: 'ingredient',
-        category: 'essence',
-        source: 'newstuff',
-        imagePath: 'assets/images/Petrodistillate.png'
-    },
-    {
-        internalId: 25,
-        id: 'robusca',
-        name: 'Robusca',
-        type: 'ingredient',
-        category: 'crystal',
-        source: 'newstuff',
-        imagePath: 'assets/images/Robusca.png'
-    },
-    {
-        internalId: 26,
-        id: 'solvent',
-        name: 'Solvent',
-        type: 'ingredient',
-        category: 'essence',
-        source: 'newstuff',
-        imagePath: 'assets/images/Solvent.png'
-    },
-    {
-        internalId: 27,
-        id: 'barkgum',
-        name: 'Barkgum',
-        type: 'ingredient',
-        category: 'botanical',
-        source: 'newstuff',
-        imagePath: 'assets/images/Barkgum.png'
-    },
-    {
-        internalId: 28,
-        id: 'berrimaters',
-        name: 'Berrimaters',
-        type: 'ingredient',
-        category: 'botanical',
-        source: 'newstuff',
-        imagePath: 'assets/images/Berrimaters.png'
-    },
-    {
-        internalId: 29,
-        id: 'touch-of-love',
-        name: 'Touch of Love',
-        type: 'ingredient',
-        category: 'exotic',
-        source: 'newstuff',
-        imagePath: 'assets/images/Touch of Love.png'
-    },
-
-    // === CRAFTED ITEMS ===
-    {
-        internalId: 101,
+        internalId: 3,
         id: 'azure-ice-cream',
         name: 'Azure Harvest Blue Moon Ice Cream',
         type: 'crafted',
         category: 'food legendary',
-        recipe: ['cream', 'crystal1', 'essence1', 'legendary1'],
-        source: 'recipes',
-        imagePath: 'assets/images/food/azure-ice-cream.png'
+        description: 'Some say they taste citrus, others swear there are hints of custard and aromatics- and yet still more profess their belief it tastes like the platonic ideal of blue children\'s modelling clay- all of them agree it is one of the best iced confections ever created.',
+        biome: []
     },
     {
-        internalId: 102,
+        internalId: 4,
+        id: 'barkgum',
+        name: 'Barkgum',
+        type: 'ingredient',
+        category: 'botanical',
+        description: 'A sticky and rubbery organic compound refined from the sap of certain types of trees. It is used as a base to make an enormous array of products from chewing-gum to glue to rubber.',
+        biome: ['Greensea Forest']
+    },
+    {
+        internalId: 5,
+        id: 'berrimaters',
+        name: 'Berrimaters',
+        type: 'ingredient',
+        category: 'botanical',
+        description: 'Small, round, savory and sweet, these cherry-red little guys are awfully fun to eat! And they pair well with many treats, so you can flex your cooking feats!',
+        biome: ['Greensea Forest']
+    },
+    {
+        internalId: 6,
         id: 'butter',
         name: 'Butter',
         type: 'crafted',
         category: 'food',
-        recipe: ['cream', 'rock-salt'],
-        source: 'recipes',
-        imagePath: 'assets/images/food/butter.png'
+        description: 'Smooth, creamy butter, perfect for cooking.',
+        biome: []
     },
     {
-        internalId: 103,
-        id: 'health-potion',
-        name: 'Health Potion',
-        type: 'crafted',
-        category: 'potion',
-        recipe: ['herb1', 'crystal1'],
-        source: 'recipes',
-        imagePath: 'assets/images/potions/health-potion.png'
-    },
-    {
-        internalId: 104,
-        id: 'herb-butter',
-        name: 'Herb Butter',
-        type: 'crafted',
-        category: 'food',
-        recipe: ['cream', 'rock-salt', 'savour-herb'],
-        source: 'recipes',
-        imagePath: 'assets/images/food/herb-butter.png'
-    },
-    {
-        internalId: 105,
-        id: 'turbonado-sugar',
-        name: 'Turbinado Sugar',
-        type: 'crafted',
-        category: 'food legendary',
-        recipe: ['crystal1', 'essence1', 'legendary1'],
-        source: 'recipes',
-        imagePath: 'assets/images/food/turbinado-sugar.png'
-    },
-    {
-        internalId: 106,
-        id: 'vanilla-ice-cream',
-        name: 'Vanilla Ice Cream',
-        type: 'crafted',
-        category: 'food',
-        recipe: ['cream', 'crystal1', 'essence1'],
-        source: 'recipes',
-        imagePath: 'assets/images/food/vanilla-ice-cream.png'
-    },
-    
-    // New crafted items from newstuff.txt
-    {
-        internalId: 107,
-        id: 'plastic-sheeting',
-        name: 'Plastic Sheeting',
-        type: 'crafted',
+        internalId: 7,
+        id: 'cotton-fluff',
+        name: 'Cotton Fluff',
+        type: 'ingredient',
         category: 'textile crafted',
-        recipe: ['plasticizer', 'petrodistillate'],
-        source: 'newstuff',
-        imagePath: 'assets/images/Plastic Sheeting.png'
+        description: 'A soft, airy fluff derived from cotton fibers, cherished for its light, cushioning properties and gentle texture.',
+        biome: ['Lissome Plains']
     },
     {
-        internalId: 108,
-        id: 'crafted-adhesive',
-        name: 'Adhesive',
-        type: 'crafted',
-        category: 'crafted other',
-        recipe: ['barkgum', 'plasticizer', 'solvent'],
-        source: 'newstuff',
-        imagePath: 'assets/images/Adhesive.png'
+        internalId: 8,
+        id: 'cream',
+        name: 'Cream',
+        type: 'ingredient',
+        category: 'food',
+        description: 'Fresh dairy cream, essential for making ice cream and other desserts.',
+        biome: ['Lissome Plains']
     },
     {
-        internalId: 109,
+        internalId: 9,
+        id: 'crystal1',
+        name: 'Clear Crystal',
+        type: 'ingredient',
+        category: 'crystal',
+        description: 'A small, transparent crystal with weak magical properties.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 10,
+        id: 'darkessence',
+        name: 'Darkessence',
+        type: 'ingredient',
+        category: 'legendary reagent',
+        description: 'A mysterious, shadow-infused essence that exudes an aura of hidden power, often employed in dark magical rites.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 11,
         id: 'diaper',
         name: 'Diaper',
         type: 'crafted',
         category: 'textile crafted',
-        recipe: ['plastic-sheeting', 'adhesive', 'cotton-fluff'],
-        source: 'newstuff',
-        imagePath: 'assets/images/diaper.png'
+        description: 'A durable plastic-backed marvel of engineering and magic! The ultimate in protection- you can\'t get any safer small clothes than these!',
+        biome: []
     },
     {
-        internalId: 110,
+        internalId: 12,
+        id: 'egg',
+        name: 'Egg',
+        type: 'ingredient',
+        category: 'food',
+        description: 'A common binding agent used in cooking and baking.',
+        biome: ['Lissome Plains']
+    },
+    {
+        internalId: 13,
+        id: 'essence1',
+        name: 'Water Essence',
+        type: 'ingredient',
+        category: 'essence',
+        description: 'The distilled magical essence of water.',
+        biome: ['Greensea Forest']
+    },
+    {
+        internalId: 14,
+        id: 'health-potion',
+        name: 'Health Potion',
+        type: 'crafted',
+        category: 'potion',
+        description: 'A basic healing potion that restores vitality.',
+        biome: []
+    },
+    {
+        internalId: 15,
+        id: 'herb-butter',
+        name: 'Herb Butter',
+        type: 'crafted',
+        category: 'food',
+        description: 'Butter infused with aromatic herbs.',
+        biome: []
+    },
+    {
+        internalId: 16,
+        id: 'herb1',
+        name: 'Common Herb',
+        type: 'ingredient',
+        category: 'herb',
+        description: 'A common herb found in meadows and forests.',
+        biome: ['Greensea Forest', 'Lissome Plains']
+    },
+    {
+        internalId: 17,
+        id: 'legendary1',
+        name: 'Phoenix Feather',
+        type: 'ingredient',
+        category: 'legendary',
+        description: 'A rare feather from a phoenix, containing immense magical energy.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 18,
         id: 'lovely-diaper',
         name: 'Lovely Diaper',
         type: 'crafted',
         category: 'textile crafted',
-        recipe: ['plastic-sheeting', 'adhesive', 'cotton-fluff', 'touch-of-love'],
-        exoticIngredient: 'touch-of-love',
-        source: 'newstuff',
-        imagePath: 'assets/images/diaper.png'
+        description: 'D\'awwww! Isn\'t that sweet. I bet whoever receives this will know how much you want to keep them safe.',
+        biome: []
     },
     {
-        internalId: 111,
+        internalId: 19,
+        id: 'lunar-egg',
+        name: 'Lunar-Dodo Egg',
+        type: 'ingredient',
+        category: 'legendary',
+        description: 'An egg from the rare Lunar-Dodo bird. Emits a soft blue glow.',
+        biome: ['Lissome Plains']
+    },
+    {
+        internalId: 20,
+        id: 'metal1',
+        name: 'Iron Dust',
+        type: 'ingredient',
+        category: 'metal',
+        description: 'Fine iron particles with minor alchemical uses.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 21,
+        id: 'night-sky',
+        name: 'Distillation of a Night Sky',
+        type: 'ingredient',
+        category: 'legendary',
+        description: 'The essence of a perfect night sky captured in a bottle. Contains stardust and dreams.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 22,
+        id: 'petrodistillate',
+        name: 'Petrodistillate',
+        type: 'ingredient',
+        category: 'essence',
+        description: 'A refined, volatile extract from crude oil, known for its flammable characteristics and use in catalyzing various reactions.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 23,
+        id: 'plastic-sheeting',
+        name: 'Plastic Sheeting',
+        type: 'crafted',
+        category: 'textile crafted',
+        description: 'A thin yet durable layer of plastic engineered for protective coverings, waterproofing, and precise industrial applications.',
+        biome: []
+    },
+    {
+        internalId: 24,
+        id: 'plasticizer',
+        name: 'Plasticizer',
+        type: 'ingredient',
+        category: 'essence',
+        description: 'A transformative substance used to soften and mold plastics, enabling materials to be fashioned into flexible forms.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 25,
         id: 'quiche',
         name: 'Quiche',
         type: 'crafted',
         category: 'food crafted',
-        source: 'newstuff',
-        imagePath: 'assets/images/Quiche.png'
+        description: 'A savory tart filled with a rich blend of ingredients, offering a hearty, delectable treat with artisanal flair.',
+        biome: []
+    },
+    {
+        internalId: 26,
+        id: 'robusca',
+        name: 'Robusca',
+        type: 'ingredient',
+        category: 'crystal',
+        description: 'A dense, robust crystalline alloy prized for its exceptional strength and durability, ideal for crafting heavy-duty tools and resilient structures.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 27,
+        id: 'rock-salt',
+        name: 'Rock Salt',
+        type: 'ingredient',
+        category: 'crystal',
+        description: 'Crystallized salt with preservative properties.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 28,
+        id: 'savour-herb',
+        name: 'Savoury Herb',
+        type: 'ingredient',
+        category: 'herb',
+        description: 'A fragrant herb with a strong taste, perfect for cooking.',
+        biome: ['Greensea Forest']
+    },
+    {
+        internalId: 29,
+        id: 'solvent',
+        name: 'Solvent',
+        type: 'ingredient',
+        category: 'essence',
+        description: 'A volatile liquid compound known for its ability to dissolve and extract substances, essential in various alchemical and industrial processes.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 30,
+        id: 'star-sugar',
+        name: 'Star Sugar',
+        type: 'ingredient',
+        category: 'legendary',
+        description: 'Crystallized sweetness that fell from the stars. Sparkles with cosmic energy.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 31,
+        id: 'starsoaked-vanilla',
+        name: 'Starsoaked Vanilla',
+        type: 'ingredient',
+        category: 'legendary',
+        description: 'Vanilla beans that have been bathed in starlight for a full lunar cycle.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 32,
+        id: 'sugar',
+        name: 'White Sugar',
+        type: 'ingredient',
+        category: 'food',
+        description: 'Refined sugar that adds sweetness to any recipe.',
+        biome: ['Lissome Plains']
+    },
+    {
+        internalId: 33,
+        id: 'touch-of-love',
+        name: 'Touch of Love',
+        type: 'ingredient',
+        category: 'exotic',
+        description: 'A magical essence that imbues items with care and affection.',
+        biome: ['Greensea Forest']
+    },
+    {
+        internalId: 34,
+        id: 'turbonado-sugar',
+        name: 'Turbinado Sugar',
+        type: 'crafted',
+        category: 'food legendary',
+        description: 'A magical sugar with extraordinary properties.',
+        biome: []
+    },
+    {
+        internalId: 35,
+        id: 'vanilla',
+        name: 'Vanilla',
+        type: 'ingredient',
+        category: 'botanical',
+        description: 'A fragrant flavoring extracted from vanilla pods.',
+        biome: ['Lissome Plains']
+    },
+    {
+        internalId: 36,
+        id: 'vanilla-ice-cream',
+        name: 'Vanilla Ice Cream',
+        type: 'crafted',
+        category: 'food',
+        description: 'The tried and true classic. Almost no one can mess this up- delicious even when it turns to soup!',
+        biome: []
+    },
+    {
+        internalId: 37,
+        id: 'vitalium',
+        name: 'Vitalium',
+        type: 'ingredient',
+        category: 'crystal exotic',
+        description: 'A shimmering metal imbued with the essence of life, frequently harnessed to empower enchanting constructs and devices.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 38,
+        id: 'vitalocanum',
+        name: 'Vitalocanum',
+        type: 'ingredient',
+        category: 'crystal exotic',
+        description: 'A potent compound derived from Vitalium, renowned for its ability to bridge the gap between vitality and arcane energies.',
+        biome: ['Dracespire Mountain Range']
+    },
+    {
+        internalId: 39,
+        id: 'yarn',
+        name: 'Yarn',
+        type: 'ingredient',
+        category: 'textile',
+        description: 'Finely spun fiber used in weaving and knitting, prized for its delicate texture and potential enchantments in crafted garments.',
+        biome: ['Lissome Plains']
     }
 ];
-
-// Function to get an item by its internal ID
-function getItemByInternalId(internalId) {
-    return masterItemsList.find(item => item.internalId === internalId);
-}
-
-// Function to get an item by its original ID
-function getItemById(id) {
-    return masterItemsList.find(item => item.id === id);
-}
-
-// Function to get all items of a specific type (ingredient or crafted)
-function getItemsByType(type) {
-    return masterItemsList.filter(item => item.type === type);
-}
-
-// Function to get all items of a specific category
-function getItemsByCategory(category) {
-    return masterItemsList.filter(item => item.category.includes(category));
-}
-
-// Function to check if the image path exists
-function verifyImagePaths() {
-    const missingImages = [];
-    
-    masterItemsList.forEach(item => {
-        if (!item.imagePath) {
-            missingImages.push({
-                internalId: item.internalId,
-                id: item.id,
-                name: item.name
-            });
-        }
-    });
-    
-    if (missingImages.length > 0) {
-        console.warn(`Found ${missingImages.length} items missing image paths:`, missingImages);
-    } else {
-        console.log('All items have image paths defined!');
-    }
-    
-    return missingImages;
-}
-
-// Function to check if all items in the list exist in the system
-function verifyAllItems() {
-    // This would need to be implemented with actual references to all source files
-    console.log('Total master items:', masterItemsList.length);
-    console.log('Ingredients:', masterItemsList.filter(item => item.type === 'ingredient').length);
-    console.log('Crafted items:', masterItemsList.filter(item => item.type === 'crafted').length);
-    
-    // Verify image paths
-    verifyImagePaths();
-    
-    return true;
-}
-
-// Add a function to normalize image paths
-function normalizeImagePath(path) {
-    if (!path) return null;
-    
-    // If path doesn't start with assets/images/ and doesn't contain a drive letter (like C:\)
-    if (!path.includes('assets/images/') && !path.match(/^[a-zA-Z]:\\/)) {
-        return 'assets/images/' + path;
-    }
-    
-    return path;
-}
-
-// Export the data and functions
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        masterItemsList,
-        getItemByInternalId,
-        getItemById,
-        getItemsByType,
-        getItemsByCategory,
-        verifyAllItems,
-        verifyImagePaths,
-        normalizeImagePath
-    };
-} else {
-    // For browser environments, attach to window
-    window.masterItemDatabase = {
-        items: masterItemsList,
-        getItemByInternalId,
-        getItemById,
-        getItemsByType,
-        getItemsByCategory,
-        verifyAllItems,
-        verifyImagePaths,
-        normalizeImagePath
-    };
-}
