@@ -1,59 +1,61 @@
 export const LARGE_MONSTERS = [
-    {
-        "name": "Darkform Enforcer",
-        "size": ["L"],
-        "type": "abomination",
-        "stats": {
-          "size": "large",
-          "challengeRating": 5,
-          "hitPoints": 96,
-          "armorClass": 16,
-          "speed": {
-            "walk": 30
-          },
-          "str": 22,
-          "dex": 14,
-          "con": 16,
-          "int": 14,
-          "wis": 12,
-          "cha": 12,
-          "attacks": [
-            {
-              "name": "Tendril Barrage",
-              "type": "Melee Weapon Attack",
-              "toHit": 8,
-              "reach": 15,
-              "damage": "1d8+6",
-              "damageType": "slashing",
-              "description": "The Enforcer makes three tendril attacks, targeting up to 3 creatures."
-            },
-            {
-              "name": "Pound",
-              "type": "Melee Weapon Attack",
-              "toHit": 8,
-              "reach": 5,
-              "damage": "3d10+6",
-              "damageType": "bludgeoning",
-              "description": "A devastating close-range attack."
-            }
-          ],
-          "abilities": [
-            {
-              "name": "Degenerate Regenerator",
-              "description": "Restores 1d8 HP per turn if it has not taken damage in the last round."
-            },
-            {
-              "name": "Pack Tactician",
-              "description": "Telepathically coordinates allied Darklings within 100 ft. to grant them +1 to actions."
-            }
-          ]
-        },
-        "tokenSize": 2
+  {
+    "name": "Darkform Enforcer",
+    "size": ["L"],
+    "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/D0cvjCxC/Enforcer.png",
+    "stats": {
+      "size": "large",
+      "challengeRating": 5,
+      "hitPoints": 96,
+      "armorClass": 16,
+      "speed": {
+        "walk": 30
       },
-   {
+      "str": 22,
+      "dex": 14,
+      "con": 16,
+      "int": 14,
+      "wis": 12,
+      "cha": 12,
+      "attacks": [
+        {
+          "name": "Tendril Barrage",
+          "type": "Melee Weapon Attack",
+          "toHit": 8,
+          "reach": 15,
+          "damage": "1d8+6",
+          "damageType": "slashing",
+          "description": "The Enforcer makes three tendril attacks, targeting up to 3 creatures."
+        },
+        {
+          "name": "Pound",
+          "type": "Melee Weapon Attack",
+          "toHit": 8,
+          "reach": 5,
+          "damage": "3d10+6",
+          "damageType": "bludgeoning",
+          "description": "A devastating close-range attack."
+        }
+      ],
+      "abilities": [
+        {
+          "name": "Degenerate Regenerator",
+          "description": "Restores 1d8 HP per turn if it has not taken damage in the last round."
+        },
+        {
+          "name": "Pack Tactician",
+          "description": "Telepathically coordinates allied Darklings within 100 ft. to grant them +1 to actions."
+        }
+      ]
+    },
+    "tokenSize": 2
+  },
+  {
     "name": "Darkform Overwatch",
     "size": ["L"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/9MhH6dRs/overwatch.png",
     "stats": {
       "size": "large",
       "challengeRating": 6,
@@ -108,6 +110,7 @@ export const LARGE_MONSTERS = [
     "name": "Darkform Sleek-Lurker Pack Alpha",
     "size": ["L"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/m22BZyXs/packalpha.png",
     "stats": {
       "size": "large",
       "challengeRating": 5,
@@ -155,6 +158,7 @@ export const LARGE_MONSTERS = [
     "name": "Darkling-Bellowbelly",
     "size": ["L"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/yN9zpQdF/bellowbelly.png",
     "stats": {
       "size": "large",
       "challengeRating": 6,
@@ -196,6 +200,7 @@ export const LARGE_MONSTERS = [
     "name": "Darkform-Hungore",
     "size": ["L"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/RZ3LYRLs/darkforme-hungore.png",
     "stats": {
       "size": "large",
       "challengeRating": 5,
@@ -237,6 +242,7 @@ export const LARGE_MONSTERS = [
     "name": "Darkform-Shark",
     "size": ["L"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/ZRL8NDJR/darkforme-shark.png",
     "stats": {
       "size": "large",
       "challengeRating": 5,
@@ -278,6 +284,7 @@ export const LARGE_MONSTERS = [
     "name": "Darkling-Ossuite Charger",
     "size": ["L"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/yNZnDPJg/darkling-ossuite-charger.png",
     "stats": {
       "size": "large",
       "challengeRating": 6,
@@ -309,59 +316,10 @@ export const LARGE_MONSTERS = [
       "abilities": [
         {
           "name": "Charge",
-          "description": "If the Charger moves at least 20 feet straight toward a target and then hits it with a gore attack on the same turn, the target takes an extra 2d8 piercing damage."
-        }
-      ]
-    },
-    "tokenSize": 2
-  },
-  {
-    "name": "Darkling-Ossuite Charger Omega",
-    "size": ["L"],
-    "type": "abomination",
-    "stats": {
-      "size": "large",
-      "challengeRating": 7,
-      "hitPoints": 165,
-      "armorClass": 16,
-      "speed": {
-        "walk": 40
-      },
-      "str": 20,
-      "dex": 14,
-      "con": 18,
-      "int": 11,
-      "wis": 13,
-      "cha": 12,
-      "attacks": [
-        {
-          "name": "Multiattack",
-          "description": "The Charger Omega makes two gore attacks and one stomp attack."
-        },
-        {
-          "name": "Gore",
-          "type": "Melee Weapon Attack",
-          "toHit": 9,
-          "reach": 10,
-          "damage": "2d8+5",
-          "damageType": "piercing"
-        },
-        {
-          "name": "Stomp",
-          "type": "Melee Weapon Attack",
-          "toHit": 9,
-          "reach": 5,
-          "damage": "2d10+5",
-          "damageType": "bludgeoning"
-        }
-      ],
-      "abilities": [
-        {
-          "name": "Omega Charge",
-          "description": "If the Charger Omega moves at least 20 feet straight toward a target and then hits it with a gore attack on the same turn, the target takes an extra 3d8 piercing damage and must succeed on a DC 16 Strength saving throw or be knocked prone."
+          "description": "If the Charger moves at least 20 feet straight toward a target and then hits with a gore attack on the same turn, the target takes an extra 2d8 piercing damage. If the target is a creature, it must succeed on a DC 14 Strength saving throw or be knocked prone."
         }
       ]
     },
     "tokenSize": 2
   }
-];
+]

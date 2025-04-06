@@ -1,8 +1,8 @@
-import { TINY_MONSTERS } from './tiny-monsters';
-import { SMALL_MONSTERS } from './small-monsters';
-import { MEDIUM_MONSTERS } from './medium-monsters';
-import { LARGE_MONSTERS } from './large-monsters';
-import { HUGE_MONSTERS } from './huge-monsters';
+import { TINY_MONSTERS } from './tiny-monsters.js';
+import { SMALL_MONSTERS } from './small-monsters.js';
+import { MEDIUM_MONSTERS } from './medium-monsters.js';
+import { LARGE_MONSTERS } from './large-monsters.js';
+import { HUGE_MONSTERS } from './huge-monsters.js';
 
 // Flatten any nested arrays in the monster lists
 const flattenMonsterList = (monsterList) => {

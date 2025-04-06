@@ -1,0 +1,2595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expedition Dungeon Generator Demo</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="MonsterQuickSpawn.js" type="module"></script>
+</head>
+<body>
+    <div class="main-container">
+        <header class="header">
+            <h1>Expedition Dungeon Generator</h1>
+        </header>
+
+        <!-- Left sidebar for dungeon generator controls -->
+        <aside class="left-sidebar">
+            <div class="dungeon-controls">
+                <h2>Generator Controls</h2>
+                <div class="primary-controls">
+                    <button id="generateBtn">Generate Dungeon</button>
+                    <button id="randomSeedBtn">Random Seed</button>
+                    <button id="exportDungeonBtn">Export Dungeon</button>
+                    <input type="file" id="importDungeonInput" accept=".json" class="hidden">
+                    <button id="importDungeonBtn">Import Dungeon</button>
+                </div>
+                
+                <div>
+                    <label>
+                        Seed: 
+                        <input type="number" id="seed" value="12345">
+                    </label>
+                    
+                    <label>
+                        Width: 
+                        <input type="number" id="width" value="30" min="10" max="100">
+                    </label>
+                    
+                    <label>
+                        Height: 
+                        <input type="number" id="height" value="30" min="10" max="100">
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        Dungeon Type:
+                        <select id="dungeonType">
+                            <option value="standard">Standard</option>
+                            <option value="bone-crypt">Bone Crypt</option>
+                            <option value="dark-dimension">Dark Dimension</option>
+                        </select>
+                    </label>
+                    
+                    <label>
+                        Map Generation Type:
+                        <select id="mapType">
+                            <option value="maze">Maze</option>
+                            <option value="rooms">Rooms & Corridors</option>
+                            <option value="cave">Cave System</option>
+                            <option value="open">Open Plan</option>
+                            <option value="modular">Modular Rooms</option>
+                        </select>
+                    </label>
+                    
+                    <label>
+                        Dungeon Layout:
+                        <select id="dungeonLayout">
+                            <option value="Box">Box</option>
+                            <option value="Cross">Cross</option>
+                            <option value="Round">Round</option>
+                        </select>
+                    </label>
+                    
+                    <label>
+                        Room Layout:
+                        <select id="roomLayout">
+                            <option value="Packed">Packed</option>
+                            <option value="Scattered">Scattered</option>
+                        </select>
+                    </label>
+                    
+                    <label>
+                        Corridor Layout:
+                        <select id="corridorLayout">
+                            <option value="Labyrinth">Labyrinth</option>
+                            <option value="Bent">Bent</option>
+                            <option value="Straight">Straight</option>
+                        </select>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        Min Room Size:
+                        <input type="number" id="roomMin" value="3" min="2" max="8">
+                    </label>
+                    
+                    <label>
+                        Max Room Size:
+                        <input type="number" id="roomMax" value="9" min="3" max="15">
+                    </label>
+                    
+                    <label>
+                        Remove Deadends (%):
+                        <input type="number" id="removeDeadends" value="50" min="0" max="100">
+                    </label>
+                    
+                    <label>
+                        Stairs:
+                        <input type="number" id="addStairs" value="2" min="0" max="4">
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        Monster Density:
+                        <input type="range" id="monsterDensity" value="1.0" min="0.1" max="3.0" step="0.1">
+                        <span id="monsterDensityValue">1.0</span>
+                    </label>
+                    
+                    <label>
+                        Treasure Density:
+                        <input type="range" id="treasureDensity" value="1.0" min="0.1" max="10.0" step="0.1">
+                        <span id="treasureDensityValue">1.0</span>
+                    </label>
+                    
+                    <label>
+                        Trap Density:
+                        <input type="range" id="trapDensity" value="3" min="0" max="10" step="1">
+                        <span id="trapDensityValue">3</span>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <input type="checkbox" id="includeTreasure" checked>
+                        Include Traditional Treasure
+                    </label>
+                    
+                    <label>
+                        <input type="checkbox" id="smoothMap" checked>
+                        Smooth Map
+                    </label>
+                    
+                    <label>
+                        Smoothing Iterations:
+                        <input type="range" id="smoothIterations" value="2" min="1" max="5" step="1">
+                        <span id="smoothIterationsValue">2</span>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <input type="checkbox" id="addWater">
+                        Add Water Features
+                    </label>
+                    
+                    <label>
+                        Water Amount:
+                        <input type="range" id="waterAmount" value="3" min="1" max="8" step="1">
+                        <span id="waterAmountValue">3</span>
+                    </label>
+                    
+                    <label>
+                        Water Type:
+                        <select id="waterType">
+                            <option value="water">Water</option>
+                            <option value="lava">Lava</option>
+                            <option value="acid">Acid</option>
+                        </select>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <input type="checkbox" id="addSecretPassages">
+                        Add Secret Passages
+                    </label>
+                    
+                    <label>
+                        Number of Passages:
+                        <input type="range" id="secretPassageCount" value="1" min="1" max="5" step="1">
+                        <span id="secretPassageValue">1</span>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <input type="checkbox" id="addColumns">
+                        Add Columns
+                    </label>
+                    
+                    <label>
+                        Column Pattern:
+                        <select id="columnPattern">
+                            <option value="grid">Grid</option>
+                            <option value="circle">Circle</option>
+                            <option value="random">Random</option>
+                        </select>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <input type="checkbox" id="specialRoom">
+                        Special Room
+                    </label>
+                    
+                    <label>
+                        Room Pattern:
+                        <select id="roomPattern">
+                            <option value="rectangular">Rectangular</option>
+                            <option value="circular">Circular</option>
+                            <option value="diamond">Diamond</option>
+                            <option value="cross">Cross</option>
+                        </select>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        <input type="checkbox" id="addVault">
+                        Add Treasure Vault
+                    </label>
+                    
+                    <label>
+                        Vault Theme:
+                        <select id="vaultTheme">
+                            <option value="gold">Gold</option>
+                            <option value="magic">Magic</option>
+                            <option value="gem">Gem</option>
+                            <option value="weapon">Weapon</option>
+                        </select>
+                    </label>
+                </div>
+                
+                <div>
+                    <label>
+                        Template Dungeon:
+                        <select id="templateDungeon">
+                            <option value="none">None</option>
+                            <option value="maze">Maze</option>
+                            <option value="cavern">Cavern</option>
+                            <option value="vault">Vault</option>
+                            <option value="arena">Arena</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main content area for the map -->
+        <main class="main-content">
+            <h2>Dungeon Map</h2>
+            <div class="dungeon-map-container">
+                <div class="dark-mode-toggle">Toggle Dark Mode</div>
+                <div class="grid-toggle">Toggle Grid</div>
+                <div class="mini-map">
+                    <div class="mini-map-content"></div>
+                    <div class="view-box"></div>
+                </div>
+                <div class="map-controls">
+                    <button id="zoomIn">+</button>
+                    <button id="zoomOut">-</button>
+                    <button id="resetView">⟲</button>
+                </div>
+                <div class="scale-indicator">Scale: 100%</div>
+                <div class="dungeon-map-inner">
+                    <div id="dungeonMap" class="dungeon-map"></div>
+                </div>
+            </div>
+
+            <div class="entity-container">
+                <h2>Monsters</h2>
+                <div class="entity-details" id="monsterDetails"></div>
+                
+                <h2>Items</h2>
+                <div class="entity-details" id="itemDetails"></div>
+            </div>
+        </main>
+
+        
+        
+        <!-- Right sidebar for monster/treasure controls -->
+        <aside class="right-sidebar">
+            <div class="monster-selection-ui">
+                <h2>Custom Monster Placement</h2>
+                <div class="monster-selector">
+                    <select id="monsterCategory" aria-label="Monster Category">
+                        <option value="all">All Monsters</option>
+                        <option value="tiny">Tiny Monsters</option>
+                        <option value="small">Small Monsters</option>
+                        <option value="medium">Medium Monsters</option>
+                        <option value="large">Large Monsters</option>
+                        <option value="huge">Huge Monsters</option>
+                        <option value="dark">Dark/Shadow Monsters</option>
+                        <option value="bone">Bone/Crypt Monsters</option>
+                    </select>
+                    <select id="selectedMonster" aria-label="Select Monster"></select>
+                    <input type="number" id="monsterX" placeholder="X coordinate" min="0" max="99" class="coordinate-input">
+                    <input type="number" id="monsterY" placeholder="Y coordinate" min="0" max="99" class="coordinate-input">
+                    <button id="addMonsterBtn">Add Monster</button>
+                </div>
+                
+                <div>
+                    <h3>Monster Groups</h3>
+                    <select id="monsterGroupType" aria-label="Monster Group Type">
+                        <option value="random">Random Group</option>
+                        <option value="dark">Dark Dimension Group</option>
+                        <option value="bone">Bone Crypt Group</option>
+                        <option value="small">Small Monster Group</option>
+                        <option value="large">Large Monster Group</option>
+                    </select>
+                    <input type="number" id="monsterGroupX" placeholder="X coordinate" min="0" max="99" class="coordinate-input">
+                    <input type="number" id="monsterGroupY" placeholder="Y coordinate" min="0" max="99" class="coordinate-input">
+                    <input type="number" id="monsterGroupSize" placeholder="Group Size" min="2" max="6" value="3" class="group-size-input">
+                    <button id="addMonsterGroupBtn">Add Monster Group</button>
+                </div>
+                
+                <div class="monster-groups">
+                    <div class="monster-group">
+                        <h4>Custom Monsters</h4>
+                        <div id="customMonsterList" class="monster-list"></div>
+                    </div>
+                    
+                    <div class="monster-group">
+                        <h4>Monster Groups</h4>
+                        <div id="monsterGroupsList" class="monster-list"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-spawn-ui">
+                <h2>Quick Spawn Monsters</h2>
+                <div class="quick-spawn-controls">
+                    <select id="quickSpawnCategory" aria-label="Monster Category">
+                        <option value="all">All Monsters</option>
+                        <option value="tiny">Tiny Monsters</option>
+                        <option value="small">Small Monsters</option>
+                        <option value="medium">Medium Monsters</option>
+                        <option value="large">Large Monsters</option>
+                        <option value="huge">Huge Monsters</option>
+                        <option value="dark">Dark/Shadow Monsters</option>
+                        <option value="bone">Bone/Crypt Monsters</option>
+                    </select>
+                    <input type="text" id="monsterSearch" placeholder="Search monsters...">
+                </div>
+                <div id="quickSpawnContainer" class="quick-spawn-container"></div>
+                <div id="quickSpawnMonsterList" class="quick-spawn-list"></div>
+            </div>
+            
+            <div class="treasure-selection-ui">
+                <h2>Custom Treasure Placement</h2>
+                <div class="treasure-selector">
+                    <select id="treasureType" aria-label="Treasure Type">
+                        <option value="coins">Coins</option>
+                        <option value="gems">Gems</option>
+                        <option value="items">Items</option>
+                        <option value="magical">Magical Items</option>
+                        <option value="hoard">Treasure Hoard</option>
+                    </select>
+                    <input type="number" id="treasureX" placeholder="X coordinate" min="0" max="99" class="coordinate-input">
+                    <input type="number" id="treasureY" placeholder="Y coordinate" min="0" max="99" class="coordinate-input">
+                    <input type="number" id="treasureValue" placeholder="Value (gp)" min="1" value="100" class="coordinate-input">
+                    <button id="addTreasureBtn">Add Treasure</button>
+                </div>
+                
+                <div class="monster-group">
+                    <h4>Custom Treasures</h4>
+                    <div id="customTreasureList" class="monster-list"></div>
+                </div>
+            </div>
+            
+            <div class="treasure-selection-ui">
+                <h2>Door Placement</h2>
+                <div class="treasure-selector">
+                    <select id="doorType" aria-label="Door Type">
+                        <option value="normal">Normal Door</option>
+                        <option value="locked">Locked Door</option>
+                        <option value="secret">Secret Door</option>
+                    </select>
+                    <select id="doorOrientation" aria-label="Door Orientation">
+                        <option value="horizontal">Horizontal (─)</option>
+                        <option value="vertical">Vertical (|)</option>
+                    </select>
+                    <input type="number" id="doorX" placeholder="X coordinate" min="0" max="99" class="coordinate-input">
+                    <input type="number" id="doorY" placeholder="Y coordinate" min="0" max="99" class="coordinate-input">
+                    <button id="addDoorBtn">Add Door</button>
+                </div>
+                
+                <div class="monster-group">
+                    <h4>Custom Doors</h4>
+                    <div id="customDoorList" class="monster-list"></div>
+                </div>
+            </div>
+            
+            <div class="treasure-selection-ui blue-background">
+                <h2>Player Tokens</h2>
+                <div class="treasure-selector">
+                    <select id="playerColor" aria-label="Player Token Color">
+                        <option value="green">Medium-Dark Green</option>
+                        <option value="blue">Blue</option>
+                        <option value="pink">Pink</option>
+                    </select>
+                    <input type="number" id="playerX" placeholder="X coordinate" min="0" max="99" class="coordinate-input">
+                    <input type="number" id="playerY" placeholder="Y coordinate" min="0" max="99" class="coordinate-input">
+                    <input type="text" id="playerLabel" placeholder="Player name" class="coordinate-input">
+                    <button id="addPlayerBtn">Add Player Token</button>
+                </div>
+                
+                <div class="monster-group">
+                    <h4>Player Tokens</h4>
+                    <div id="playerTokensList" class="monster-list"></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <script type="module">
+
+import { DungeonGenerator } from './DungeonGenerator.js';
+        import { TreasureGenerator } from './TreasureGenerator.js';
+        import { BESTIARY, CATEGORIZED_MONSTERS } from './bestiary/index.js';
+
+                
+        // DOM elements
+        const generateBtn = document.getElementById('generateBtn');
+        const randomSeedBtn = document.getElementById('randomSeedBtn');
+        const dungeonMapEl = document.getElementById('dungeonMap');
+        const monsterDetailsEl = document.getElementById('monsterDetails');
+        const itemDetailsEl = document.getElementById('itemDetails');
+        
+        // Store current dungeon data globally for the monster placement feature
+        let currentDungeon = null;
+
+ // Initialize the interactive map features
+ let mapScale = 1;
+        const mapContainer = document.querySelector('.dungeon-map-container');
+        const mapInner = document.querySelector('.dungeon-map-inner');
+        const miniMapContent = document.querySelector('.mini-map-content');
+        const viewBox = document.querySelector('.view-box');
+        const scaleIndicator = document.querySelector('.scale-indicator');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const resetViewBtn = document.getElementById('resetView');
+        const gridToggleBtn = document.querySelector('.grid-toggle');
+        const darkModeToggleBtn = document.querySelector('.dark-mode-toggle');
+
+
+
+        // Input elements
+        const seedInput = document.getElementById('seed');
+        const widthInput = document.getElementById('width');
+        const heightInput = document.getElementById('height');
+        const dungeonTypeSelect = document.getElementById('dungeonType');
+        const mapTypeSelect = document.getElementById('mapType');
+        const dungeonLayoutSelect = document.getElementById('dungeonLayout');
+        const roomLayoutSelect = document.getElementById('roomLayout');
+        const corridorLayoutSelect = document.getElementById('corridorLayout');
+        const roomMinInput = document.getElementById('roomMin');
+        const roomMaxInput = document.getElementById('roomMax');
+        const removeDeadendsInput = document.getElementById('removeDeadends');
+        const addStairsInput = document.getElementById('addStairs');
+        const monsterDensityInput = document.getElementById('monsterDensity');
+        const treasureDensityInput = document.getElementById('treasureDensity');
+        const trapDensityInput = document.getElementById('trapDensity');
+        const includeTreasureInput = document.getElementById('includeTreasure');
+        const smoothMapInput = document.getElementById('smoothMap');
+        const smoothIterationsInput = document.getElementById('smoothIterations');
+        const addWaterInput = document.getElementById('addWater');
+        const waterAmountInput = document.getElementById('waterAmount');
+        const waterTypeSelect = document.getElementById('waterType');
+        const addSecretPassagesInput = document.getElementById('addSecretPassages');
+        const secretPassageCountInput = document.getElementById('secretPassageCount');
+        const addColumnsInput = document.getElementById('addColumns');
+        const columnPatternSelect = document.getElementById('columnPattern');
+        const specialRoomInput = document.getElementById('specialRoom');
+        const roomPatternSelect = document.getElementById('roomPattern');
+        const addVaultInput = document.getElementById('addVault');
+        const vaultThemeSelect = document.getElementById('vaultTheme');
+        const templateDungeonSelect = document.getElementById('templateDungeon');
+        
+        // Monster selection controls
+        const monsterCategorySelect = document.getElementById('monsterCategory');
+        const selectedMonsterSelect = document.getElementById('selectedMonster');
+        const monsterXInput = document.getElementById('monsterX');
+        const monsterYInput = document.getElementById('monsterY');
+        const addMonsterBtn = document.getElementById('addMonsterBtn');
+        const customMonsterList = document.getElementById('customMonsterList');
+        
+        // Monster group controls
+        const monsterGroupTypeSelect = document.getElementById('monsterGroupType');
+        const monsterGroupXInput = document.getElementById('monsterGroupX');
+        const monsterGroupYInput = document.getElementById('monsterGroupY');
+        const monsterGroupSizeInput = document.getElementById('monsterGroupSize');
+        const addMonsterGroupBtn = document.getElementById('addMonsterGroupBtn');
+        const monsterGroupsList = document.getElementById('monsterGroupsList');
+        
+        // Treasure placement controls
+        const treasureTypeSelect = document.getElementById('treasureType');
+        const treasureXInput = document.getElementById('treasureX');
+        const treasureYInput = document.getElementById('treasureY');
+        const treasureValueInput = document.getElementById('treasureValue');
+        const addTreasureBtn = document.getElementById('addTreasureBtn');
+        const customTreasureList = document.getElementById('customTreasureList');
+        
+        // Door placement controls
+        const doorTypeSelect = document.getElementById('doorType');
+        const doorOrientationSelect = document.getElementById('doorOrientation');
+        const doorXInput = document.getElementById('doorX');
+        const doorYInput = document.getElementById('doorY');
+        const addDoorBtn = document.getElementById('addDoorBtn');
+        const customDoorList = document.getElementById('customDoorList');
+        
+        // Player token controls
+        const playerColorSelect = document.getElementById('playerColor');
+        const playerXInput = document.getElementById('playerX');
+        const playerYInput = document.getElementById('playerY');
+        const playerLabelInput = document.getElementById('playerLabel');
+        const addPlayerBtn = document.getElementById('addPlayerBtn');
+        const playerTokensList = document.getElementById('playerTokensList');
+
+                // Initialize on page load
+                window.addEventListener('load', () => {
+            // Make sure the dungeon is generated first
+            setTimeout(() => {
+                setupDragAndDrop();
+                initializeInteractiveMap();
+                
+                // Import and call the QuickSpawn initializer from MonsterQuickSpawn.js
+                import('./MonsterQuickSpawn.js').then(module => {
+                    module.initializeQuickSpawnMonsters(
+                        currentDungeon, 
+                        renderDungeon, 
+                        renderEntities, 
+                        setupDragAndDrop, 
+                        addMonsterGroupToList,
+                        monsterXInput,
+                        monsterYInput,
+                        filterMonstersByKeywords,
+                        CATEGORIZED_MONSTERS
+                    );
+                    console.log('Quick spawn monsters initialized from module');
+                });
+                
+                // Initialize local quick spawn UI
+                initializeLocalQuickSpawnUI();
+            }, 200);
+        });
+
+        // Function to update the quick spawn monster list
+        function updateQuickSpawnList() {
+            const category = quickSpawnCategory.value;
+            const searchTerm = monsterSearch.value.toLowerCase();
+            const quickSpawnMonsterList = document.getElementById('quickSpawnMonsterList');
+            
+            // Clear the list first
+            quickSpawnMonsterList.innerHTML = '';
+            
+            // Get monsters based on selected category
+            let monsters = [];
+            
+            switch(category) {
+                case 'tiny':
+                    monsters = CATEGORIZED_MONSTERS.tiny || [];
+                    break;
+                case 'small':
+                    monsters = CATEGORIZED_MONSTERS.small || [];
+                    break;
+                case 'medium':
+                    monsters = CATEGORIZED_MONSTERS.medium || [];
+                    break;
+                case 'large':
+                    monsters = CATEGORIZED_MONSTERS.large || [];
+                    break;
+                case 'huge':
+                    monsters = CATEGORIZED_MONSTERS.huge || [];
+                    break;
+                case 'dark':
+                    monsters = filterMonstersByKeywords(['dark', 'shadow', 'void', 'dimension', 'nightmare']);
+                    break;
+                case 'bone':
+                    monsters = filterMonstersByKeywords(['bone', 'skeleton', 'crypt', 'ossuary', 'undead']);
+                    break;
+                case 'all':
+                default:
+                    monsters = [
+                        ...(CATEGORIZED_MONSTERS.tiny || []),
+                        ...(CATEGORIZED_MONSTERS.small || []),
+                        ...(CATEGORIZED_MONSTERS.medium || []),
+                        ...(CATEGORIZED_MONSTERS.large || []),
+                        ...(CATEGORIZED_MONSTERS.huge || [])
+                    ];
+                    break;
+            }
+            
+            // Filter by search term if provided
+            if (searchTerm) {
+                monsters = monsters.filter(monster => 
+                    monster.name.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Sort monsters alphabetically
+            monsters.sort((a, b) => {
+                const nameA = a.name || 'Unknown Monster';
+                const nameB = b.name || 'Unknown Monster';
+                return nameA.localeCompare(nameB);
+            });
+            
+            // Limit to first 20 monsters for performance
+            const displayMonsters = monsters.slice(0, 20);
+            
+            // Add monsters to the list
+            if (displayMonsters.length === 0) {
+                const emptyItem = document.createElement('div');
+                emptyItem.className = 'monster-item';
+                emptyItem.textContent = 'No monsters found';
+                quickSpawnMonsterList.appendChild(emptyItem);
+            } else {
+                displayMonsters.forEach(monster => {
+                    const item = document.createElement('div');
+                    item.className = 'monster-item';
+                    
+                    item.innerHTML = `
+                        <span class="monster-name">${monster.name}</span>
+                        <button class="add-monster-btn">Add</button>
+                    `;
+                    
+                    // Add click handler to the add button
+                    const addBtn = item.querySelector('.add-monster-btn');
+                    addBtn.addEventListener('click', () => {
+                        if (!currentDungeon) {
+                            alert('Please generate a dungeon first');
+                            return;
+                        }
+                        
+                        const x = parseInt(monsterXInput.value);
+                        const y = parseInt(monsterYInput.value);
+                        
+                        // If coordinates are not specified, prompt to click on map
+                        if (isNaN(x) || isNaN(y) || x < 0 || y < 0 || 
+                            x >= currentDungeon.width || y >= currentDungeon.height) {
+                            alert('Please enter valid coordinates in the monster placement fields first');
+                            return;
+                        }
+                        
+                        // Check if the cell is blocked
+                        if (currentDungeon.cells[y][x].blocked) {
+                            alert('Cannot place a monster on a blocked cell');
+                            return;
+                        }
+                        
+                        // Add the monster to the dungeon
+                        const monsterEntity = {
+                            row: y,
+                            col: x,
+                            type: 'monster',
+                            monster: monster,
+                            custom: true
+                        };
+                        
+                        currentDungeon.entities.push(monsterEntity);
+                        
+                        // Add to the custom monster list
+                        addCustomMonsterToList(monsterEntity);
+                        
+                        // Re-render the dungeon
+                        renderDungeon(currentDungeon);
+                        renderEntities(currentDungeon);
+                        setupDragAndDrop();
+                        
+                        // Clear inputs
+                        monsterXInput.value = '';
+                        monsterYInput.value = '';
+                    });
+                    
+                    quickSpawnMonsterList.appendChild(item);
+                });
+                
+                // Add a message about the number of results
+                if (monsters.length > 20) {
+                    const moreItem = document.createElement('div');
+                    moreItem.className = 'monster-item more-monsters';
+                    moreItem.textContent = `Showing 20 of ${monsters.length} monsters. Refine your search to see more.`;
+                    quickSpawnMonsterList.appendChild(moreItem);
+                }
+            }
+        }
+
+        // Initialize Quick Spawn Monster UI
+        function initializeLocalQuickSpawnUI() {
+            // Add category change listener
+            quickSpawnCategory.addEventListener('change', updateQuickSpawnList);
+            
+            // Add search input listener
+            monsterSearch.addEventListener('input', updateQuickSpawnList);
+            
+            // Initial population of the monster list
+            updateQuickSpawnList();
+        }
+        
+        // Add a player token to the dungeon
+        addPlayerBtn.addEventListener('click', () => {
+            if (!currentDungeon) {
+                alert('Please generate a dungeon first');
+                return;
+            }
+            
+            const x = parseInt(playerXInput.value);
+            const y = parseInt(playerYInput.value);
+            const color = playerColorSelect.value;
+            const label = playerLabelInput.value || `Player (${color})`;
+            
+            // Validate coordinates
+            if (isNaN(x) || isNaN(y) || x < 0 || y < 0 || 
+                x >= currentDungeon.width || y >= currentDungeon.height) {
+                alert('Please enter valid coordinates within the dungeon bounds');
+                return;
+            }
+            
+            // Check if the cell is blocked
+            if (currentDungeon.cells[y][x].blocked) {
+                alert('Cannot place a player token on a blocked cell');
+                return;
+            }
+            
+            // Add player to the dungeon
+            const playerEntity = {
+                row: y,
+                col: x,
+                type: 'player',
+                color: color,
+                label: label,
+                id: 'player_' + Date.now() + Math.floor(Math.random() * 1000)
+            };
+            
+            currentDungeon.entities.push(playerEntity);
+            
+            // Add to the player tokens list
+            addPlayerTokenToList(playerEntity);
+            
+            // Re-render the dungeon
+            renderDungeon(currentDungeon);
+            setupDragAndDrop();
+            
+            // Clear inputs
+            playerXInput.value = '';
+            playerYInput.value = '';
+            playerLabelInput.value = '';
+        });
+        
+        // Add a player token to the tokens list
+        function addPlayerTokenToList(player) {
+            const item = document.createElement('div');
+            item.className = 'monster-item';
+            item.innerHTML = `
+                <span>${player.label} (${player.col}, ${player.row})</span>
+                <button class="remove-player" data-id="${player.id}">X</button>
+            `;
+            
+            // Add remove functionality
+            const removeBtn = item.querySelector('.remove-player');
+            removeBtn.addEventListener('click', () => {
+                const playerId = removeBtn.dataset.id;
+                
+                // Remove from entities
+                const index = currentDungeon.entities.findIndex(e => e.id === playerId);
+                
+                if (index !== -1) {
+                    currentDungeon.entities.splice(index, 1);
+                    
+                    // Remove from list
+                    item.remove();
+                    
+                    // Re-render the dungeon
+                    renderDungeon(currentDungeon);
+                    setupDragAndDrop();
+                }
+            });
+            
+            playerTokensList.appendChild(item);
+        }
+        
+        // Set up drag and drop for player tokens and monster tokens
+        function setupDragAndDrop() {
+            const playerTokens = document.querySelectorAll('.cell-player');
+            const monsterTokens = document.querySelectorAll('.cell-monster');
+            
+            // Setup draggable player tokens
+            playerTokens.forEach(token => {
+                token.setAttribute('draggable', true);
+                
+                // Add drag start event
+                token.addEventListener('dragstart', (e) => {
+                    const row = parseInt(token.dataset.row);
+                    const col = parseInt(token.dataset.col);
+                    
+                    // Store the original position
+                    e.dataTransfer.setData('text/plain', JSON.stringify({ row, col, type: 'player' }));
+                    
+                    // Add dragging class for visual feedback
+                    token.classList.add('dragging');
+                    
+                    // Set the drag image
+                    if (e.dataTransfer.setDragImage) {
+                        e.dataTransfer.setDragImage(token, 10, 10);
+                    }
+                });
+                
+                // Add drag end event
+                token.addEventListener('dragend', () => {
+                    token.classList.remove('dragging');
+                });
+            });
+            
+            // Setup draggable monster tokens
+            monsterTokens.forEach(token => {
+                token.setAttribute('draggable', true);
+                
+                // Add drag start event
+                token.addEventListener('dragstart', (e) => {
+                    const row = parseInt(token.dataset.row);
+                    const col = parseInt(token.dataset.col);
+                    
+                    // Store the original position
+                    e.dataTransfer.setData('text/plain', JSON.stringify({ row, col, type: 'monster' }));
+                    
+                    // Add dragging class for visual feedback
+                    token.classList.add('dragging');
+                    
+                    // Set the drag image
+                    if (e.dataTransfer.setDragImage) {
+                        e.dataTransfer.setDragImage(token, 10, 10);
+                    }
+                });
+                
+                // Add drag end event
+                token.addEventListener('dragend', () => {
+                    token.classList.remove('dragging');
+                });
+            });
+            
+            // Add drop targets (all valid cells)
+            const validCells = document.querySelectorAll('.cell-room, .cell-corridor, .cell-crypt, .cell-dark-room, .cell-dark-corridor, .cell-crypt-corridor');
+            
+            validCells.forEach(cell => {
+                // Add dragover event
+                cell.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    cell.classList.add('drop-target');
+                });
+                
+                // Add dragleave event
+                cell.addEventListener('dragleave', () => {
+                    cell.classList.remove('drop-target');
+                });
+                
+                // Add drop event
+                cell.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove highlight
+                    cell.classList.remove('drop-target');
+                    
+                    // Get the original position
+                    const originalPos = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    
+                    // Get the new position
+                    const newRow = parseInt(cell.dataset.row);
+                    const newCol = parseInt(cell.dataset.col);
+                    
+                    if (originalPos.type === 'player') {
+                        // Find the player entity
+                        const playerEntity = currentDungeon.entities.find(e => 
+                            e.type === 'player' && e.row === originalPos.row && e.col === originalPos.col
+                        );
+                        
+                        if (playerEntity) {
+                            // Update the player's position
+                            playerEntity.row = newRow;
+                            playerEntity.col = newCol;
+                            
+                            // Update any list items
+                            const listItem = document.querySelector(`.remove-player[data-id="${playerEntity.id}"]`)?.parentNode;
+                            if (listItem) {
+                                const span = listItem.querySelector('span');
+                                if (span) {
+                                    span.textContent = `${playerEntity.label} (${newCol}, ${newRow})`;
+                                }
+                            }
+                        }
+                    } else if (originalPos.type === 'monster') {
+                        // Find the monster entity
+                        const monsterEntity = currentDungeon.entities.find(e => 
+                            e.type === 'monster' && e.row === originalPos.row && e.col === originalPos.col
+                        );
+                        
+                        if (monsterEntity) {
+                            // Update the monster's position
+                            monsterEntity.row = newRow;
+                            monsterEntity.col = newCol;
+                            
+                            // Update any list items
+                            const listItem = document.querySelector(`.remove-monster[data-row="${originalPos.row}"][data-col="${originalPos.col}"]`)?.parentNode;
+                            if (listItem) {
+                                const span = listItem.querySelector('span');
+                                if (span) {
+                                    span.textContent = `${monsterEntity.monster.name} (${newCol}, ${newRow})`;
+                                }
+                                
+                                // Update the data attributes for the remove button
+                                const removeButton = listItem.querySelector('.remove-monster');
+                                if (removeButton) {
+                                    removeButton.setAttribute('data-row', newRow);
+                                    removeButton.setAttribute('data-col', newCol);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Re-render the dungeon
+                    renderDungeon(currentDungeon);
+                    setupDragAndDrop(); // Re-setup drag and drop for new elements
+                });
+            });
+        }
+        
+        // Export/Import controls
+        const exportDungeonBtn = document.getElementById('exportDungeonBtn');
+        const importDungeonBtn = document.getElementById('importDungeonBtn');
+        const importDungeonInput = document.getElementById('importDungeonInput');
+        
+        // Export dungeon to JSON file
+        exportDungeonBtn.addEventListener('click', () => {
+            if (!currentDungeon) {
+                alert('Please generate a dungeon first');
+                return;
+            }
+            
+            try {
+                // Get current generator options for saving with the dungeon
+                const generatorOptions = getGeneratorOptions();
+                
+                // Create an export object with dungeon data and options
+                const exportData = {
+                    dungeon: currentDungeon,
+                    generatorOptions: generatorOptions,
+                    exportDate: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                // Convert to JSON
+                const jsonData = JSON.stringify(exportData, null, 2);
+                
+                // Create a Blob and download link
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Create file name with date
+                const date = new Date();
+                const dateStr = `${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
+                const fileName = `dungeon-${dungeonTypeSelect.value}-${dateStr}.json`;
+                
+                // Create download link and trigger click
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 0);
+                
+                console.log('Dungeon exported successfully');
+            } catch (error) {
+                console.error('Error exporting dungeon:', error);
+                alert('Error exporting dungeon. See console for details.');
+            }
+        });
+        
+        // Import dungeon from JSON file
+        importDungeonBtn.addEventListener('click', () => {
+            importDungeonInput.click();
+        });
+        
+        importDungeonInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importData = JSON.parse(e.target.result);
+                    
+                    // Validate imported data
+                    if (!importData.dungeon || !importData.generatorOptions) {
+                        throw new Error('Invalid dungeon file format');
+                    }
+                    
+                    // Load the imported dungeon
+                    currentDungeon = importData.dungeon;
+                    
+                    // Update the UI with the imported options
+                    const options = importData.generatorOptions;
+                    
+                    // Update input fields with imported settings
+                    seedInput.value = options.seed;
+                    widthInput.value = options.width;
+                    heightInput.value = options.height;
+                    dungeonTypeSelect.value = options.dungeonType;
+                    mapTypeSelect.value = options.mapType;
+                    dungeonLayoutSelect.value = options.dungeonLayout;
+                    roomLayoutSelect.value = options.roomLayout;
+                    corridorLayoutSelect.value = options.corridorLayout;
+                    roomMinInput.value = options.roomMin;
+                    roomMaxInput.value = options.roomMax;
+                    removeDeadendsInput.value = options.removeDeadends;
+                    addStairsInput.value = options.addStairs;
+                    monsterDensityInput.value = options.monsterDensity;
+                    treasureDensityInput.value = options.treasureDensity;
+                    trapDensityInput.value = options.trapDensity;
+                    includeTreasureInput.checked = options.includeTreasure;
+                    smoothMapInput.checked = options.smoothMap;
+                    smoothIterationsInput.value = options.smoothIterations;
+                    addWaterInput.checked = options.addWater;
+                    waterAmountInput.value = options.waterAmount;
+                    waterTypeSelect.value = options.waterType;
+                    addSecretPassagesInput.checked = options.addSecretPassages;
+                    secretPassageCountInput.value = options.secretPassageCount;
+                    addColumnsInput.checked = options.addColumns;
+                    columnPatternSelect.value = options.columnPattern;
+                    specialRoomInput.checked = options.specialRoom;
+                    roomPatternSelect.value = options.roomPattern;
+                    addVaultInput.checked = options.addVault;
+                    vaultThemeSelect.value = options.vaultTheme;
+                    templateDungeonSelect.value = options.templateDungeon;
+                    
+                    // Update display value spans
+                    document.getElementById('monsterDensityValue').textContent = options.monsterDensity;
+                    document.getElementById('treasureDensityValue').textContent = options.treasureDensity;
+                    document.getElementById('trapDensityValue').textContent = options.trapDensity;
+                    document.getElementById('smoothIterationsValue').textContent = options.smoothIterations;
+                    document.getElementById('waterAmountValue').textContent = options.waterAmount;
+                    document.getElementById('secretPassageValue').textContent = options.secretPassageCount;
+                    
+                    // Clear custom lists
+                    customMonsterList.innerHTML = '';
+                    monsterGroupsList.innerHTML = '';
+                    customTreasureList.innerHTML = '';
+                    customDoorList.innerHTML = '';
+                    playerTokensList.innerHTML = '';
+                    
+                    // Re-populate custom lists
+                    // Add custom monsters
+                    currentDungeon.entities
+                        .filter(e => e.type === 'monster' && e.custom)
+                        .forEach(entity => {
+                            if (entity.group) {
+                                // This is part of a group, collect all group members
+                                const groupName = entity.group;
+                                const groupMembers = currentDungeon.entities.filter(
+                                    e => e.group === groupName && e.custom
+                                );
+                                
+                                // Only add the group once (for the first encounter)
+                                const groupAlreadyAdded = Array.from(monsterGroupsList.children).some(
+                                    item => item.querySelector('span').textContent.includes(groupName)
+                                );
+                                
+                                if (!groupAlreadyAdded) {
+                                    addMonsterGroupToList(groupName, groupMembers.length);
+                                }
+                            } else {
+                                // Individual monster
+                                addCustomMonsterToList(entity);
+                            }
+                        });
+                    
+                    // Add custom treasures
+                    currentDungeon.entities
+                        .filter(e => e.type === 'treasure' && e.custom)
+                        .forEach(entity => {
+                            addCustomTreasureToList(entity);
+                        });
+                    
+                    // Add custom doors
+                    for (let y = 0; y < currentDungeon.height; y++) {
+                        for (let x = 0; x < currentDungeon.width; x++) {
+                            const cell = currentDungeon.cells[y][x];
+                            if (cell.door) {
+                                addCustomDoorToList(x, y, cell.door.type || 'normal', cell.door.orientation);
+                            }
+                        }
+                    }
+                    
+                    // Add player tokens
+                    currentDungeon.entities
+                        .filter(e => e.type === 'player')
+                        .forEach(entity => {
+                            addPlayerTokenToList(entity);
+                        });
+                    
+                    // Render the imported dungeon
+                    renderDungeon(currentDungeon);
+                    renderEntities(currentDungeon);
+                    setupDragAndDrop();
+                    
+                    console.log('Dungeon imported successfully');
+                    alert('Dungeon imported successfully!');
+                } catch (error) {
+                    console.error('Error importing dungeon:', error);
+                    alert('Error importing dungeon. See console for details.');
+                }
+                
+                // Reset the file input
+                event.target.value = '';
+            };
+            
+            reader.readAsText(file);
+        });
+        
+        // Update density value displays
+        monsterDensityInput.addEventListener('input', () => {
+            document.getElementById('monsterDensityValue').textContent = monsterDensityInput.value;
+        });
+        
+        treasureDensityInput.addEventListener('input', () => {
+            document.getElementById('treasureDensityValue').textContent = treasureDensityInput.value;
+        });
+        
+        trapDensityInput.addEventListener('input', () => {
+            document.getElementById('trapDensityValue').textContent = trapDensityInput.value;
+        });
+        
+        smoothIterationsInput.addEventListener('input', () => {
+            document.getElementById('smoothIterationsValue').textContent = smoothIterationsInput.value;
+        });
+        
+        waterAmountInput.addEventListener('input', () => {
+            document.getElementById('waterAmountValue').textContent = waterAmountInput.value;
+        });
+        
+        secretPassageCountInput.addEventListener('input', () => {
+            document.getElementById('secretPassageValue').textContent = secretPassageCountInput.value;
+        });
+        
+        // Helper function to get cell symbol for display
+        function getCellSymbol(cellType) {
+            switch (cellType) {
+                case 'wall': return '#';
+                case 'room': return '.';
+                case 'crypt': return '.';
+                case 'dark-room': return '.';
+                case 'corridor': return '.';
+                case 'crypt-corridor': return '.';
+                case 'dark-corridor': return '.';
+                case 'stairs-up': return '<';
+                case 'stairs-down': return '>';
+                case 'tomb': return 'T';
+                case 'altar': return 'A';
+                case 'water': return '~';
+                case 'lava': return '≈';
+                case 'acid': return '≈';
+                case 'void': return ' ';
+                case 'portal': return 'O';
+                default: return '?';
+            }
+        }
+        
+        // Helper function to get numerical row label
+        function getAlphaLabel(index) {
+            // Simply return the numerical index
+            return index.toString();
+        }
+        
+        // Helper function to get tooltip text for cells
+        function getTooltip(cell, entity, row, col) {
+            let tooltip = `Coordinates: (${col}, ${row})\nType: ${cell.type}`;
+            
+            if (cell.door) {
+                tooltip += `, Door: ${cell.door.type || 'normal'} (${cell.door.orientation})`;
+            }
+            
+            if (cell.trap) {
+                tooltip += `, Trap: ${cell.trap.type}`;
+                if (cell.trap.discovered) {
+                    tooltip += ' (discovered)';
+                }
+            }
+            
+            if (entity) {
+                if (entity.type === 'monster' && entity.monster) {
+                    tooltip += `\nMonster: ${entity.monster.name}`;
+                    
+                    if (entity.monster.stats) {
+                        tooltip += `, CR ${entity.monster.stats.challengeRating || '?'}`;
+                    }
+                }
+            }
+            
+            return tooltip;
+        }
+        
+        // Handle cell click for interactive placement
+        function handleCellClick(event) {
+            const td = event.currentTarget;
+            const row = parseInt(td.dataset.row);
+            const col = parseInt(td.dataset.col);
+            
+            // Show context information
+            console.log(`Clicked cell at ${row}, ${col}`);
+            
+            // Set coordinates in active input fields
+            if (document.activeElement === monsterXInput || 
+                document.activeElement === monsterYInput || 
+                document.querySelector('.monster-selection-ui:hover')) {
+                monsterXInput.value = col;
+                monsterYInput.value = row;
+            } else if (document.activeElement === treasureXInput || 
+                       document.activeElement === treasureYInput || 
+                       document.querySelector('.treasure-selection-ui:hover')) {
+                treasureXInput.value = col;
+                treasureYInput.value = row;
+            } else if (document.activeElement === doorXInput || 
+                       document.activeElement === doorYInput) {
+                doorXInput.value = col;
+                doorYInput.value = row;
+            } else if (document.activeElement === monsterGroupXInput || 
+                       document.activeElement === monsterGroupYInput) {
+                monsterGroupXInput.value = col;
+                monsterGroupYInput.value = row;
+            } else if (document.activeElement === playerXInput || 
+                       document.activeElement === playerYInput) {
+                playerXInput.value = col;
+                playerYInput.value = row;
+            }
+        }
+        
+        // Get values from form
+        function getGeneratorOptions() {
+            return {
+                seed: parseInt(seedInput.value),
+                width: parseInt(widthInput.value),
+                height: parseInt(heightInput.value),
+                dungeonType: dungeonTypeSelect.value,
+                mapType: mapTypeSelect.value,
+                dungeonLayout: dungeonLayoutSelect.value,
+                roomLayout: roomLayoutSelect.value,
+                corridorLayout: corridorLayoutSelect.value,
+                roomMin: parseInt(roomMinInput.value),
+                roomMax: parseInt(roomMaxInput.value),
+                removeDeadends: parseInt(removeDeadendsInput.value),
+                addStairs: parseInt(addStairsInput.value),
+                monsterDensity: parseFloat(monsterDensityInput.value),
+                treasureDensity: parseFloat(treasureDensityInput.value),
+                trapDensity: parseInt(trapDensityInput.value),
+                includeTreasure: includeTreasureInput.checked,
+                smoothMap: smoothMapInput.checked,
+                smoothIterations: parseInt(smoothIterationsInput.value),
+                addWater: addWaterInput.checked,
+                waterAmount: parseInt(waterAmountInput.value),
+                waterType: waterTypeSelect.value,
+                addSecretPassages: addSecretPassagesInput.checked,
+                secretPassageCount: parseInt(secretPassageCountInput.value),
+                addColumns: addColumnsInput.checked,
+                columnPattern: columnPatternSelect.value,
+                specialRoom: specialRoomInput.checked,
+                roomPattern: roomPatternSelect.value,
+                addVault: addVaultInput.checked,
+                vaultTheme: vaultThemeSelect.value,
+                templateDungeon: templateDungeonSelect.value
+            };
+        }
+        
+        // Generate a random seed
+        randomSeedBtn.addEventListener('click', () => {
+            seedInput.value = Math.floor(Math.random() * 100000);
+        });
+        
+        // Generate dungeon
+        generateBtn.addEventListener('click', generateDungeon);
+        
+        function generateDungeon() {
+            const options = getGeneratorOptions();
+            const generator = new DungeonGenerator(options);
+            const dungeon = generator.generate();
+            
+            // Add traps and treasure after generating the base dungeon
+            if (options.trapDensity > 0) {
+                TreasureGenerator.addTraps(dungeon, options);
+            }
+            
+            if (options.includeTreasure && options.treasureDensity > 0) {
+                TreasureGenerator.addTreasure(dungeon, dungeon.entities, options);
+            }
+            
+            renderDungeon(dungeon);
+            renderEntities(dungeon);
+            setupDragAndDrop();
+            
+            // Store the current dungeon for use by the monster placement features
+            currentDungeon = dungeon;
+            return dungeon;
+        }
+        
+        function renderDungeon(dungeon) {
+            const { width, height, cells, entities } = dungeon;
+            
+            // Create a table to represent the dungeon grid
+            let html = '<table>';
+            
+            // Add column labels (numbers for X axis)
+            html += '<tr><td class="corner-label grid-label"></td>';
+            for (let col = 0; col < width; col++) {
+                html += `<td class="column-label grid-label">${col}</td>`;
+            }
+            html += '</tr>';
+            
+            // Keep track of multi-cell monster positions
+            const occupiedCells = {};
+            
+            // Pre-process large monsters to mark their occupied cells
+            entities.filter(e => e.type === 'monster' && e.monster).forEach(entity => {
+                const monster = entity.monster;
+                const size = getMonsterSizeCategory(monster);
+                const row = entity.row;
+                const col = entity.col;
+                
+                if (size === 'large') {
+                    // Large monsters take up 2x2 cells
+                    for (let r = row; r < row + 2; r++) {
+                        for (let c = col; c < col + 2; c++) {
+                            // Skip if out of bounds
+                            if (r >= 0 && r < height && c >= 0 && c < width) {
+                                const key = `${r},${c}`;
+                                occupiedCells[key] = {
+                                    entity,
+                                    isMain: r === row && c === col,
+                                    size
+                                };
+                            }
+                        }
+                    }
+                } else if (size === 'huge') {
+                    // Huge monsters take up 3x3 cells
+                    for (let r = row; r < row + 3; r++) {
+                        for (let c = col; c < col + 3; c++) {
+                            // Skip if out of bounds
+                            if (r >= 0 && r < height && c >= 0 && c < width) {
+                                const key = `${r},${c}`;
+                                occupiedCells[key] = {
+                                    entity,
+                                    isMain: r === row && c === col,
+                                    size
+                                };
+                            }
+                        }
+                    }
+                } else if (size === 'gargantuan') {
+                    // Gargantuan monsters take up 4x4 cells
+                    for (let r = row; r < row + 4; r++) {
+                        for (let c = col; c < col + 4; c++) {
+                            // Skip if out of bounds
+                            if (r >= 0 && r < height && c >= 0 && c < width) {
+                                const key = `${r},${c}`;
+                                occupiedCells[key] = {
+                                    entity,
+                                    isMain: r === row && c === col,
+                                    size
+                                };
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Render each cell in the dungeon
+            for (let row = 0; row < height; row++) {
+                html += '<tr>';
+                // Add row label (numeric for Y axis)
+                html += `<td class="row-label grid-label">${row}</td>`;
+                
+                for (let col = 0; col < width; col++) {
+                    const cell = cells[row][col];
+                    const cellType = cell.type || 'wall';
+                    const cellClass = `cell-${cellType}`;
+                    const cellKey = `${row},${col}`;
+                    let cellContent = getCellSymbol(cellType);
+                    let entityClass = '';
+                    let monsterClass = '';
+                    
+                    // Check for doors
+                    if (cell.door) {
+                        entityClass += ` door-${cell.door.orientation} ${cell.door.type ? 'door-' + cell.door.type : ''}`;
+                        cellContent = cell.door.orientation === 'horizontal' ? '—' : '|';
+                    }
+                    
+                    // Check if a large monster occupies this cell
+                    if (occupiedCells[cellKey]) {
+                        const occupyingMonster = occupiedCells[cellKey];
+                        const monsterEntity = occupyingMonster.entity;
+                        
+                        if (occupyingMonster.isMain) {
+                            // This is the main cell of the monster
+                            cellContent = 'M';
+                            entityClass = 'cell-monster';
+                            monsterClass = `monster-${occupyingMonster.size} monster-cell-main`;
+                        } else {
+                            // This is a part of a larger monster
+                            cellContent = ''; // Keep it empty or use a small dot
+                            entityClass = 'cell-monster';
+                            monsterClass = `monster-${occupyingMonster.size} monster-cell-part`;
+                        }
+                        
+                    } else {
+                        // Check for regular entities at this position
+                        const entity = entities.find(e => e.row === row && e.col === col);
+                        if (entity) {
+                            if (entity.type === 'monster') {
+                                cellContent = 'M';
+                                entityClass = 'cell-monster';
+                                
+                                // Standard 1x1 monster
+                                const size = getMonsterSizeCategory(entity.monster);
+                                if (size === 'tiny' || size === 'small' || size === 'medium') {
+                                    monsterClass = `monster-${size}`;
+                                }
+                            } else if (entity.type === 'item') {
+                                cellContent = 'I';
+                                entityClass = 'cell-item';
+                            } else if (entity.type === 'treasure') {
+                                cellContent = '$';
+                                entityClass = 'cell-treasure';
+                            } else if (entity.type === 'player') {
+                                cellContent = 'P';
+                                entityClass = `cell-player player-${entity.color}`;
+                            }
+                        }
+                    }
+                    
+                    // Check for traps
+                    if (cell.trap) {
+                        cellContent = cell.trap.discovered ? '∆' : cellContent;
+                        entityClass += ' cell-trap';
+                    }
+                    
+                    // Add room labels if available
+                    let roomLabelHTML = '';
+                    if (cell.label) {
+                        roomLabelHTML = `<div class="room-label">${cell.label}</div>`;
+                    }
+                    
+                    html += `<td class="${cellClass} ${entityClass} ${monsterClass}" 
+                              data-row="${row}" data-col="${col}" 
+                              title="${getTooltip(cell, occupiedCells[cellKey]?.entity || entities.find(e => e.row === row && e.col === col), row, col)}">${cellContent}${roomLabelHTML}</td>`;
+                }
+                html += '</tr>';
+            }
+            
+            html += '</table>';
+            
+            // Add map legend
+            html += `
+            <div class="map-legend">
+                <div class="legend-item"><div class="legend-swatch cell-room"></div> Room</div>
+                <div class="legend-item"><div class="legend-swatch cell-corridor"></div> Corridor</div>
+                <div class="legend-item"><div class="legend-swatch cell-wall"></div> Wall</div>
+                <div class="legend-item"><div class="legend-swatch cell-stairs-up"></div> Stairs Up</div>
+                <div class="legend-item"><div class="legend-swatch cell-stairs-down"></div> Stairs Down</div>
+                <div class="legend-item"><div class="legend-swatch cell-monster"></div> Monster</div>
+                <div class="legend-item"><div class="legend-swatch cell-treasure"></div> Treasure</div>
+                <div class="legend-item"><div class="legend-swatch cell-trap"></div> Trap</div>
+                <div class="legend-item"><div class="legend-swatch cell-player"></div> Player Token</div>
+            </div>
+            `;
+            
+            // Add treasure summary section
+            const treasures = entities.filter(e => e.type === 'treasure' && e.treasure);
+            if (treasures.length > 0) {
+                const totalValue = treasures.reduce((sum, t) => sum + (t.treasure.totalValue || 0), 0);
+                
+                html += `
+                <div class="treasure-summary">
+                    <h3>Treasure Summary</h3>
+                    <p><strong>Total Treasure Value:</strong> ${totalValue} gp</p>
+                    <p><strong>Number of Treasures:</strong> ${treasures.length}</p>
+                    <p><strong>Average Value:</strong> ${Math.round(totalValue / treasures.length)} gp per treasure</p>
+                </div>
+                `;
+            }
+            
+            dungeonMapEl.innerHTML = html;
+            
+            // Add click handlers to cells for interactive placement
+            dungeonMapEl.querySelectorAll('td:not(.grid-label)').forEach(td => {
+                td.addEventListener('click', handleCellClick);
+            });
+        }
+        
+        // Helper function to determine monster size category
+        function getMonsterSizeCategory(monster) {
+            if (!monster || !monster.size) return 'medium'; // Default to medium
+            
+            const sizeStr = Array.isArray(monster.size) 
+                ? monster.size[0].toLowerCase() 
+                : typeof monster.size === 'string' 
+                    ? monster.size.toLowerCase() 
+                    : '';
+            
+            // If monster has stats with size property, use that
+            if (monster.stats && monster.stats.size) {
+                return monster.stats.size.toLowerCase();
+            }
+            
+            // Otherwise derive from size array/string
+            if (sizeStr.includes('t')) return 'tiny';
+            if (sizeStr.includes('s')) return 'small';
+            if (sizeStr.includes('l')) return 'large';
+            if (sizeStr.includes('h')) return 'huge';
+            if (sizeStr.includes('g')) return 'gargantuan';
+            
+            return 'medium'; // Default
+        }
+        
+        function renderEntities(dungeon) {
+            const { entities } = dungeon;
+            
+            // Clear previous entity details
+            monsterDetailsEl.innerHTML = '';
+            itemDetailsEl.innerHTML = '';
+            
+            // Group entities by type
+            const monsters = entities.filter(e => e.type === 'monster' && e.monster);
+            const items = entities.filter(e => (e.type === 'item' && e.item) || e.type === 'treasure');
+            
+            // Render monsters
+            monsters.forEach((entity, index) => {
+                const monster = entity.monster;
+                const card = document.createElement('div');
+                card.className = 'entity-card';
+                
+                let statsHtml = '';
+                if (monster.stats) {
+                    const stats = monster.stats;
+                    statsHtml = `
+                        <p>HP: ${stats.hitPoints || '?'}, AC: ${stats.armorClass || '?'}</p>
+                        <p>CR: ${stats.challengeRating || '?'}</p>
+                    `;
+                }
+                
+                card.innerHTML = `
+                    <h3>${monster.name || 'Unknown Monster'}</h3>
+                    ${monster.imageUrl ? `<img src="${monster.imageUrl}" alt="${monster.name}">` : ''}
+                    <p>Type: ${monster.type || 'Unknown'}</p>
+                    <p>Size: ${monster.size ? monster.size.join(', ') : 'Unknown'}</p>
+                    ${statsHtml}
+                    <p>Location: ${entity.row}, ${entity.col}</p>
+                `;
+                
+                monsterDetailsEl.appendChild(card);
+            });
+            
+            // Render items and treasures
+            items.forEach((entity, index) => {
+                const card = document.createElement('div');
+                card.className = 'entity-card';
+                
+                if (entity.type === 'item' && entity.item) {
+                    const item = entity.item;
+                    card.innerHTML = `
+                        <h3>${item.name || 'Unknown Item'}</h3>
+                        <p>Type: ${item.type || 'Unknown'}</p>
+                        <p>Category: ${item.category || 'Unknown'}</p>
+                        <p>Description: ${item.description || 'No description available'}</p>
+                        <p>Location: ${entity.row}, ${entity.col}</p>
+                    `;
+                } else if (entity.type === 'treasure') {
+                    // Ensure the treasure object is properly processed
+                    let treasure = entity.treasure;
+                    if (!treasure) {
+                        treasure = {
+                            totalValue: 0,
+                            description: "Empty treasure"
+                        };
+                    }
+                    
+                    // Get the actual total value
+                    const totalValue = treasure.totalValue || treasure.value || 0;
+                    
+                    let treasureHtml = `
+                        <h3>${entity.displayName || treasure.displayName || "Treasure"}</h3>
+                        <p>Total Value: ${totalValue} gp</p>
+                        <p>Location: ${entity.row}, ${entity.col}</p>
+                    `;
+                    
+                    // List coins with their values
+                    if (treasure.coins && treasure.coins.length > 0) {
+                        treasureHtml += '<h4>Coins</h4><ul>';
+                        treasure.coins.forEach(coin => {
+                            // Ensure coin has value property
+                            const coinValue = coin.value || 
+                                (coin.name.includes("Platinum") ? coin.amount * 1000 : 
+                                 coin.name.includes("Gold") ? coin.amount * 100 :
+                                 coin.name.includes("Silver") ? coin.amount * 10 :
+                                 coin.amount);
+                                     
+                            treasureHtml += `<li>${coin.amount} ${coin.name} (${coinValue} gp)</li>`;
+                        });
+                        treasureHtml += '</ul>';
+                    }
+                    
+                    // List gems with their values
+                    if (treasure.gems && treasure.gems.length > 0) {
+                        treasureHtml += '<h4>Gems</h4><ul>';
+                        treasure.gems.forEach(gem => {
+                            // Ensure gem has all necessary properties
+                            const amount = gem.amount || gem.quantity || 1;
+                            const valueEach = gem.valueEach || gem.value || 0;
+                            const totalGemValue = amount * valueEach;
+                            
+                            treasureHtml += `<li>${amount} ${gem.name} (${valueEach} gp each, total: ${totalGemValue} gp)</li>`;
+                        });
+                        treasureHtml += '</ul>';
+                    }
+                    
+                    // List valuables with their values
+                    if (treasure.valuables && treasure.valuables.length > 0) {
+                        treasureHtml += '<h4>Valuables</h4><ul>';
+                        treasure.valuables.forEach(valuable => {
+                            // Ensure value property
+                            const itemValue = valuable.value || 0;
+                            treasureHtml += `<li>${valuable.name} (${itemValue} gp)</li>`;
+                        });
+                        treasureHtml += '</ul>';
+                    }
+                    
+                    // List magical items with their values
+                    if (treasure.magical && treasure.magical.length > 0) {
+                        treasureHtml += '<h4>Magical Items</h4><ul>';
+                        treasure.magical.forEach(magical => {
+                            // Ensure value property
+                            const itemValue = magical.value || 0;
+                            treasureHtml += `<li>${magical.name} (${itemValue} gp)</li>`;
+                        });
+                        treasureHtml += '</ul>';
+                    }
+                    
+                    // List items with their values (if separate from valuables)
+                    if (treasure.items && treasure.items.length > 0) {
+                        treasureHtml += '<h4>Items</h4><ul>';
+                        treasure.items.forEach(item => {
+                            // Ensure value property
+                            const amount = item.amount || item.quantity || 1;
+                            const itemValue = item.value || 0;
+                            treasureHtml += `<li>${amount} ${item.name} (${itemValue} gp)</li>`;
+                        });
+                        treasureHtml += '</ul>';
+                    }
+                    
+                    card.innerHTML = treasureHtml;
+                }
+                
+                itemDetailsEl.appendChild(card);
+            });
+        }
+        
+        // Add a custom treasure to the dungeon
+        addTreasureBtn.addEventListener('click', () => {
+            if (!currentDungeon) {
+                alert('Please generate a dungeon first');
+                return;
+            }
+            
+            const x = parseInt(treasureXInput.value);
+            const y = parseInt(treasureYInput.value);
+            const treasureType = treasureTypeSelect.value;
+            const value = parseInt(treasureValueInput.value) || 100;
+            
+            // Validate coordinates
+            if (isNaN(x) || isNaN(y) || x < 0 || y < 0 || 
+                x >= currentDungeon.width || y >= currentDungeon.height) {
+                alert('Please enter valid coordinates within the dungeon bounds');
+                return;
+            }
+            
+            // Check if the cell is blocked
+            if (currentDungeon.cells[y][x].blocked) {
+                alert('Cannot place treasure on a blocked cell');
+                return;
+            }
+            
+            // Generate treasure based on type and value
+            let treasureObj;
+            
+            switch (treasureType) {
+                case 'coins':
+                    treasureObj = {
+                        totalValue: value,
+                        coins: { GP: value },
+                        description: `${value} gold pieces`
+                    };
+                    break;
+                case 'gems':
+                    treasureObj = {
+                        totalValue: value,
+                        gems: [{ 
+                            name: 'assorted gems', 
+                            quantity: Math.ceil(value / 50), 
+                            value: Math.min(50, value) 
+                        }],
+                        description: `Gems worth ${value} gold pieces total`
+                    };
+                    break;
+                case 'items':
+                    treasureObj = {
+                        totalValue: value,
+                        items: [{ 
+                            name: 'valuable item', 
+                            quantity: 1,
+                            value: value 
+                        }],
+                        description: `Items worth ${value} gold pieces`
+                    };
+                    break;
+                case 'magical':
+                    treasureObj = {
+                        totalValue: value,
+                        magical: [{ 
+                            name: 'magical item',
+                            quantity: 1,
+                            value: value
+                        }],
+                        description: 'Magical item'
+                    };
+                    break;
+                case 'hoard':
+                    // Mix of different treasure types
+                    const coinValue = Math.floor(value * 0.4);
+                    const gemValue = Math.floor(value * 0.3);
+                    const itemValue = Math.floor(value * 0.3);
+                    
+                    treasureObj = {
+                        totalValue: value,
+                        coins: { GP: coinValue },
+                        gems: [{ 
+                            name: 'assorted gems', 
+                            quantity: Math.ceil(gemValue / 50), 
+                            value: Math.min(50, gemValue) 
+                        }],
+                        items: [{ 
+                            name: 'valuable item', 
+                            quantity: 1,
+                            value: itemValue 
+                        }],
+                        description: `Treasure hoard worth ${value} gold pieces`
+                    };
+                    break;
+                default:
+                    treasureObj = {
+                        totalValue: value,
+                        description: `Treasure worth ${value} gold pieces`
+                    };
+                    break;
+            }
+            
+            // Create display name based on value
+            const displayName = value >= 1000 
+                ? "Treasure Chest" 
+                : value >= 500 
+                    ? "Valuable Treasure" 
+                    : value >= 200 
+                        ? "Treasure Pile" 
+                        : "Small Cache";
+            
+            // Add the treasure to the dungeon
+            const treasureEntity = {
+                row: y,
+                col: x,
+                type: 'treasure',
+                treasure: treasureObj,
+                displayName: displayName,
+                custom: true
+            };
+            
+            currentDungeon.entities.push(treasureEntity);
+            
+            // Add to the custom treasure list
+            addCustomTreasureToList(treasureEntity);
+            
+            // Re-render the dungeon
+            renderDungeon(currentDungeon);
+            renderEntities(currentDungeon);
+            
+            // Clear inputs
+            treasureXInput.value = '';
+            treasureYInput.value = '';
+        });
+        
+        // Add a door to the dungeon
+        addDoorBtn.addEventListener('click', () => {
+            if (!currentDungeon) {
+                alert('Please generate a dungeon first');
+                return;
+            }
+            
+            const x = parseInt(doorXInput.value);
+            const y = parseInt(doorYInput.value);
+            const doorType = doorTypeSelect.value;
+            const orientation = doorOrientationSelect.value;
+            
+            // Validate coordinates
+            if (isNaN(x) || isNaN(y) || x < 0 || y < 0 || 
+                x >= currentDungeon.width || y >= currentDungeon.height) {
+                alert('Please enter valid coordinates within the dungeon bounds');
+                return;
+            }
+            
+            // Add door information to the cell
+            if (!currentDungeon.cells[y]) {
+                currentDungeon.cells[y] = [];
+            }
+            
+            if (!currentDungeon.cells[y][x]) {
+                currentDungeon.cells[y][x] = { type: 'corridor', blocked: false };
+            }
+            
+            currentDungeon.cells[y][x].door = {
+                type: doorType,
+                orientation: orientation,
+                locked: doorType === 'locked'
+            };
+            
+            // Add to the custom doors list
+            addCustomDoorToList(x, y, doorType, orientation);
+            
+            // Re-render the dungeon
+            renderDungeon(currentDungeon);
+            
+            // Clear inputs
+            doorXInput.value = '';
+            doorYInput.value = '';
+        });
+        
+        // Add a treasure to the custom treasure list
+        function addCustomTreasureToList(treasure) {
+            const item = document.createElement('div');
+            item.className = 'monster-item';
+            item.innerHTML = `
+                <span>${treasure.displayName} (${treasure.row}, ${treasure.col}) - ${treasure.treasure.totalValue} gp</span>
+                <button class="remove-treasure" data-row="${treasure.row}" data-col="${treasure.col}">X</button>
+            `;
+            
+            // Add remove functionality
+            const removeBtn = item.querySelector('.remove-treasure');
+            removeBtn.addEventListener('click', () => {
+                const row = parseInt(removeBtn.dataset.row);
+                const col = parseInt(removeBtn.dataset.col);
+                
+                // Remove from entities
+                const index = currentDungeon.entities.findIndex(
+                    e => e.row === row && e.col === col && e.type === 'treasure' && e.custom === true
+                );
+                
+                if (index !== -1) {
+                    currentDungeon.entities.splice(index, 1);
+                    
+                    // Remove from list
+                    item.remove();
+                    
+                    // Re-render the dungeon
+                    renderDungeon(currentDungeon);
+                    renderEntities(currentDungeon);
+                }
+            });
+            
+            customTreasureList.appendChild(item);
+        }
+        
+        // Add a door to the custom doors list
+        function addCustomDoorToList(x, y, doorType, orientation) {
+            const item = document.createElement('div');
+            item.className = 'monster-item';
+            item.innerHTML = `
+                <span>${doorType} door (${orientation}) at (${x}, ${y})</span>
+                <button class="remove-door" data-x="${x}" data-y="${y}">X</button>
+            `;
+            
+            // Add remove functionality
+            const removeBtn = item.querySelector('.remove-door');
+            removeBtn.addEventListener('click', () => {
+                const x = parseInt(removeBtn.dataset.x);
+                const y = parseInt(removeBtn.dataset.y);
+                
+                // Remove door property from cell
+                if (currentDungeon.cells[y][x].door) {
+                    delete currentDungeon.cells[y][x].door;
+                }
+                
+                // Remove from list
+                item.remove();
+                
+                // Re-render the dungeon
+                renderDungeon(currentDungeon);
+            });
+            
+            customDoorList.appendChild(item);
+        }
+        
+        // Generate a dungeon on page load
+        generateDungeon();
+        // Monster selection and placement functionality
+        // (Moved import to the top of the script)
+        
+        // Debugging - Check if monster data is loaded correctly
+        console.log('Loaded monsters:', {
+            tiny: CATEGORIZED_MONSTERS.tiny?.length || 0,
+            small: CATEGORIZED_MONSTERS.small?.length || 0,
+            medium: CATEGORIZED_MONSTERS.medium?.length || 0,
+            large: CATEGORIZED_MONSTERS.large?.length || 0,
+            huge: CATEGORIZED_MONSTERS.huge?.length || 0,
+            total: BESTIARY[0]?.creatures?.length || 0
+        });
+        
+        // Update monster dropdown when category changes
+        monsterCategorySelect.addEventListener('change', updateMonsterOptions);
+        
+        // Initialize monster dropdown and set initial data
+        window.addEventListener('DOMContentLoaded', () => {
+            // Make sure CATEGORIZED_MONSTERS is available before trying to use it
+            if (typeof CATEGORIZED_MONSTERS === 'undefined') {
+                console.error('Monster data not loaded yet, waiting...');
+                setTimeout(() => {
+                    initializeMonsterDropdowns();
+                    initializeQuickSpawnMonsters(); // Also initialize quick spawn functionality
+                }, 500);
+            } else {
+                initializeMonsterDropdowns();
+                initializeQuickSpawnMonsters(); // Also initialize quick spawn functionality
+            }
+        });
+        
+        function initializeMonsterDropdowns() {
+            // Verify monster data is available
+            if (!CATEGORIZED_MONSTERS || !CATEGORIZED_MONSTERS.medium) {
+                console.error('Monster data still not available!');
+                setTimeout(initializeMonsterDropdowns, 500);
+                return;
+            }
+            
+            // Populate category dropdown if needed
+            if (monsterCategorySelect.options.length <= 1) {
+                const categories = [
+                    { value: 'all', text: 'All Monsters' },
+                    { value: 'tiny', text: 'Tiny Monsters' },
+                    { value: 'small', text: 'Small Monsters' },
+                    { value: 'medium', text: 'Medium Monsters' },
+                    { value: 'large', text: 'Large Monsters' },
+                    { value: 'huge', text: 'Huge Monsters' },
+                    { value: 'dark', text: 'Dark Creatures' },
+                    { value: 'bone', text: 'Bone Creatures' }
+                ];
+                
+                // Add categories to dropdown
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.value;
+                    option.textContent = category.text;
+                    monsterCategorySelect.appendChild(option);
+                });
+            }
+            
+            updateMonsterOptions();
+            console.log('Monster dropdown initialized');
+            setupDragAndDrop();
+        }
+        
+        function updateMonsterOptions() {
+            const category = monsterCategorySelect.value;
+            selectedMonsterSelect.innerHTML = '';
+            
+            console.log('Updating monster list for category:', category);
+            
+            let monsters = [];
+            
+            switch(category) {
+                case 'tiny':
+                    monsters = CATEGORIZED_MONSTERS.tiny || [];
+                    break;
+                case 'small':
+                    monsters = CATEGORIZED_MONSTERS.small || [];
+                    break;
+                case 'medium':
+                    monsters = CATEGORIZED_MONSTERS.medium || [];
+                    break;
+                case 'large':
+                    monsters = CATEGORIZED_MONSTERS.large || [];
+                    break;
+                case 'huge':
+                    monsters = CATEGORIZED_MONSTERS.huge || [];
+                    break;
+                case 'dark':
+                    monsters = filterMonstersByKeywords(['dark', 'shadow', 'void', 'dimension', 'nightmare']);
+                    break;
+                case 'bone':
+                    monsters = filterMonstersByKeywords(['bone', 'skeleton', 'crypt', 'ossuary', 'undead']);
+                    break;
+                case 'all':
+                default:
+                    monsters = [
+                        ...(CATEGORIZED_MONSTERS.tiny || []),
+                        ...(CATEGORIZED_MONSTERS.small || []),
+                        ...(CATEGORIZED_MONSTERS.medium || []),
+                        ...(CATEGORIZED_MONSTERS.large || []),
+                        ...(CATEGORIZED_MONSTERS.huge || [])
+                    ];
+                    break;
+            }
+            
+            if (!monsters || monsters.length === 0) {
+                console.error('No monsters found for category:', category);
+                const option = document.createElement('option');
+                option.textContent = '-- No monsters available --';
+                selectedMonsterSelect.appendChild(option);
+                return;
+            }
+            
+            // Sort monsters alphabetically
+            monsters.sort((a, b) => {
+                const nameA = a.name || 'Unknown Monster';
+                const nameB = b.name || 'Unknown Monster';
+                return nameA.localeCompare(nameB);
+            });
+            
+            // Add monsters to the dropdown
+            monsters.forEach(monster => {
+                const option = document.createElement('option');
+                option.textContent = monster.name || 'Unknown Monster';
+                // Store the monster data in the option for retrieval when selected
+                option.dataset.monster = JSON.stringify(monster);
+                selectedMonsterSelect.appendChild(option);
+            });
+            
+            console.log(`Added ${monsters.length} monsters to dropdown for category ${category}`);
+        }
+        
+        // Filter monsters by keywords in their names
+        function filterMonstersByKeywords(keywords) {
+            const allMonsters = [
+                ...(CATEGORIZED_MONSTERS.tiny || []),
+                ...(CATEGORIZED_MONSTERS.small || []),
+                ...(CATEGORIZED_MONSTERS.medium || []),
+                ...(CATEGORIZED_MONSTERS.large || []),
+                ...(CATEGORIZED_MONSTERS.huge || [])
+            ];
+            
+            return allMonsters.filter(monster => 
+                keywords.some(keyword => 
+                    monster.name && monster.name.toLowerCase().includes(keyword.toLowerCase())
+                )
+            );
+        }
+        
+        // Add a custom monster to the dungeon
+        addMonsterBtn.addEventListener('click', () => {
+            if (!currentDungeon) {
+                alert('Please generate a dungeon first');
+                return;
+            }
+            
+            const x = parseInt(monsterXInput.value);
+            const y = parseInt(monsterYInput.value);
+            
+            // Validate coordinates
+            if (isNaN(x) || isNaN(y) || x < 0 || y < 0 || 
+                x >= currentDungeon.width || y >= currentDungeon.height) {
+                alert('Please enter valid coordinates within the dungeon bounds');
+                return;
+            }
+            
+            // Check if the cell is blocked
+            if (currentDungeon.cells[y][x].blocked) {
+                alert('Cannot place a monster on a blocked cell');
+                return;
+            }
+            
+            // Get the selected monster
+            const selectedOption = selectedMonsterSelect.options[selectedMonsterSelect.selectedIndex];
+            if (!selectedOption || !selectedOption.dataset.monster) {
+                alert('Please select a valid monster');
+                return;
+            }
+            
+            // Parse the monster data
+            let monster;
+            try {
+                monster = JSON.parse(selectedOption.dataset.monster);
+            } catch (error) {
+                console.error('Error parsing monster data:', error);
+                alert('Error selecting monster. Please try again.');
+                return;
+            }
+            
+            // Add the monster to the dungeon
+            const monsterEntity = {
+                row: y,
+                col: x,
+                type: 'monster',
+                monster: monster,
+                custom: true
+            };
+            
+            currentDungeon.entities.push(monsterEntity);
+            
+            // Add to the custom monster list
+            addCustomMonsterToList(monsterEntity);
+            
+            // Re-render the dungeon
+            renderDungeon(currentDungeon);
+            renderEntities(currentDungeon);
+            setupDragAndDrop();
+            
+            // Clear inputs
+            monsterXInput.value = '';
+            monsterYInput.value = '';
+        });
+        
+        // Add a monster group to the dungeon
+        addMonsterGroupBtn.addEventListener('click', () => {
+            if (!currentDungeon) {
+                alert('Please generate a dungeon first');
+                return;
+            }
+            
+            const x = parseInt(monsterGroupXInput.value);
+            const y = parseInt(monsterGroupYInput.value);
+            const groupSize = parseInt(monsterGroupSizeInput.value) || 3;
+            const groupType = monsterGroupTypeSelect.value;
+            
+            // Validate coordinates
+            if (isNaN(x) || isNaN(y) || x < 0 || y < 0 || 
+                x >= currentDungeon.width || y >= currentDungeon.height) {
+                alert('Please enter valid coordinates within the dungeon bounds');
+                return;
+            }
+            
+            // Check if the cell is blocked
+            if (currentDungeon.cells[y][x].blocked) {
+                alert('Cannot place a monster group on a blocked cell');
+                return;
+            }
+            
+            // Get monsters for the group
+            let monsters = [];
+            let groupName = '';
+            
+            switch(groupType) {
+                case 'dark':
+                    monsters = filterMonstersByKeywords(['dark', 'shadow', 'void', 'dimension', 'nightmare']);
+                    groupName = 'Dark Dimension Group';
+                    break;
+                case 'bone':
+                    monsters = filterMonstersByKeywords(['bone', 'skeleton', 'crypt', 'ossokin', 'undead']);
+                    groupName = 'Bone Crypt Group';
+                    break;
+                case 'small':
+                    monsters = [...CATEGORIZED_MONSTERS.tiny, ...CATEGORIZED_MONSTERS.small];
+                    groupName = 'Small Monster Group';
+                    break;
+                case 'large':
+                    monsters = [...CATEGORIZED_MONSTERS.medium, ...CATEGORIZED_MONSTERS.large, ...CATEGORIZED_MONSTERS.huge];
+                    groupName = 'Large Monster Group';
+                    break;
+                default:
+                    monsters = [
+                        ...CATEGORIZED_MONSTERS.tiny,
+                        ...CATEGORIZED_MONSTERS.small,
+                        ...CATEGORIZED_MONSTERS.medium,
+                        ...CATEGORIZED_MONSTERS.large,
+                        ...CATEGORIZED_MONSTERS.huge
+                    ];
+                    groupName = 'Random Monster Group';
+                    break;
+            }
+            
+            if (monsters.length === 0) {
+                alert('No monsters available for this group type');
+                return;
+            }
+            
+            // Create a random monster group
+            const seededRandom = new SeededRandom(Math.floor(Math.random() * 10000));
+            const addedMonsters = [];
+            
+            // Place the first monster at the specified coordinates
+            const firstMonster = seededRandom.select(monsters);
+            addedMonsters.push({
+                row: y,
+                col: x,
+                type: 'monster',
+                monster: firstMonster,
+                custom: true,
+                group: groupName
+            });
+            
+            // Place additional monsters nearby
+            for (let i = 1; i < groupSize; i++) {
+                // Try to find a free adjacent cell
+                const directions = [
+                    { dy: -1, dx: 0 }, // up
+                    { dy: 1, dx: 0 },  // down
+                    { dy: 0, dx: -1 }, // left
+                    { dy: 0, dx: 1 },  // right
+                    { dy: -1, dx: -1 }, // up-left
+                    { dy: -1, dx: 1 }, // up-right
+                    { dy: 1, dx: -1 }, // down-left
+                    { dy: 1, dx: 1 }    // down-right
+                ];
+                
+                // Randomize direction order
+                for (let j = directions.length - 1; j > 0; j--) {
+                    const k = Math.floor(seededRandom.next() * (j + 1));
+                    [directions[j], directions[k]] = [directions[k], directions[j]];
+                }
+                
+                // Try each direction
+                let placed = false;
+                for (const dir of directions) {
+                    const newY = y + dir.dy * Math.ceil(i/2);
+                    const newX = x + dir.dx * Math.ceil(i/2);
+                    
+                    // Check if position is valid
+                    if (newX >= 0 && newX < currentDungeon.width && 
+                        newY >= 0 && newY < currentDungeon.height && 
+                        !currentDungeon.cells[newY][newX].blocked) {
+                        
+                        // Check if position is not already occupied
+                        const isOccupied = currentDungeon.entities.some(e => e.row === newY && e.col === newX) ||
+                                          addedMonsters.some(m => m.row === newY && m.col === newX);
+                        
+                        if (!isOccupied) {
+                            const monster = seededRandom.select(monsters);
+                            addedMonsters.push({
+                                row: newY,
+                                col: newX,
+                                type: 'monster',
+                                monster: monster,
+                                custom: true,
+                                group: groupName
+                            });
+                            placed = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // If we couldn't place a monster, stop adding to the group
+                if (!placed) break;
+            }
+            
+            // Add monsters to the dungeon
+            currentDungeon.entities.push(...addedMonsters);
+            
+            // Add group to the monster groups list
+            addMonsterGroupToList(groupName, addedMonsters.length);
+            
+            // Re-render the dungeon
+            renderDungeon(currentDungeon);
+            renderEntities(currentDungeon);
+            
+            // Clear inputs
+            monsterGroupXInput.value = '';
+            monsterGroupYInput.value = '';
+        });
+        
+        // Add a monster to the custom monster list
+        function addCustomMonsterToList(monster) {
+            const item = document.createElement('div');
+            item.className = 'monster-item';
+            item.innerHTML = `
+                <span>${monster.monster.name} (${monster.col}, ${monster.row})</span>
+                <button class="remove-monster" data-row="${monster.row}" data-col="${monster.col}">X</button>
+            `;
+            
+            // Add remove functionality
+            const removeBtn = item.querySelector('.remove-monster');
+            removeBtn.addEventListener('click', () => {
+                const row = parseInt(removeBtn.dataset.row);
+                const col = parseInt(removeBtn.dataset.col);
+                
+                // Remove from entities
+                const index = currentDungeon.entities.findIndex(
+                    e => e.type === 'monster' && e.row === row && e.col === col && e.custom === true
+                );
+                
+                if (index !== -1) {
+                    currentDungeon.entities.splice(index, 1);
+                    
+                    // Remove from list
+                    item.remove();
+                    
+                    // Re-render the dungeon
+                    renderDungeon(currentDungeon);
+                    renderEntities(currentDungeon);
+                    setupDragAndDrop();
+                }
+            });
+            
+            customMonsterList.appendChild(item);
+        }
+        
+        // Add a monster group to the list
+        function addMonsterGroupToList(groupName, count) {
+            const item = document.createElement('div');
+            item.className = 'monster-item';
+            item.innerHTML = `
+                <span>${groupName} (${count} monsters)</span>
+                <button class="remove-group" data-group="${groupName}">X</button>
+            `;
+            
+            // Add remove functionality
+            const removeBtn = item.querySelector('.remove-group');
+            removeBtn.addEventListener('click', () => {
+                const groupName = removeBtn.dataset.group;
+                
+                // Remove all monsters from this group
+                currentDungeon.entities = currentDungeon.entities.filter(
+                    e => !(e.type === 'monster' && e.group === groupName)
+                );
+                
+                // Remove from list
+                item.remove();
+                
+                // Re-render the dungeon
+                renderDungeon(currentDungeon);
+                renderEntities(currentDungeon);
+            });
+            
+            monsterGroupsList.appendChild(item);
+        }
+        
+        // Initialize monster dropdown
+        updateMonsterOptions();
+        
+        // Override the generate dungeon function to store the current dungeon
+        const originalGenerateDungeon = generateDungeon;
+        generateDungeon = function() {
+            const dungeon = originalGenerateDungeon();
+            initializeInteractiveMap();
+            setupDragAndDrop();  // Call setupDragAndDrop after generating a new dungeon
+            return dungeon;
+        };
+
+
+
+              // Set up mini-map
+              function updateMiniMap() {
+            // Clone the dungeon map for mini-map
+            if (currentDungeon) {
+                const mapWidth = dungeonMapEl.offsetWidth;
+                const mapHeight = dungeonMapEl.offsetHeight;
+                const containerWidth = mapContainer.offsetWidth;
+                const containerHeight = mapContainer.offsetHeight;
+                
+                // Calculate mini-map scale (fit dungeon in mini-map)
+                const miniMapWidth = document.querySelector('.mini-map').offsetWidth;
+                const miniMapHeight = document.querySelector('.mini-map').offsetHeight;
+                const scaleX = miniMapWidth / mapWidth;
+                const scaleY = miniMapHeight / mapHeight;
+                const miniMapScale = Math.min(scaleX, scaleY) * 0.9; // 90% to leave margin
+                
+                // Set mini-map content
+                miniMapContent.innerHTML = dungeonMapEl.innerHTML;
+                miniMapContent.style.transform = `scale(${miniMapScale})`;
+                
+                // Update viewbox position and size
+                const viewBoxWidth = Math.min(containerWidth / mapWidth / mapScale * miniMapWidth, miniMapWidth);
+                const viewBoxHeight = Math.min(containerHeight / mapHeight / mapScale * miniMapHeight, miniMapHeight);
+                
+                viewBox.style.width = `${viewBoxWidth}px`;
+                viewBox.style.height = `${viewBoxHeight}px`;
+                
+                const viewBoxX = Math.abs(mapTranslateX) / mapWidth * miniMapWidth * miniMapScale;
+                const viewBoxY = Math.abs(mapTranslateY) / mapHeight * miniMapHeight * miniMapScale;
+                
+                viewBox.style.left = `${viewBoxX}px`;
+                viewBox.style.top = `${viewBoxY}px`;
+                
+                // Remove event listeners from mini-map elements
+                miniMapContent.querySelectorAll('td').forEach(td => {
+                    td.removeAttribute('title');
+                    td.style.cursor = 'default';
+                    td.style.pointerEvents = 'none';
+                });
+            }
+        }
+        
+        // Set up dragging functionality
+        let isDragging = false;
+        let startX, startY, scrollLeft, scrollTop;
+        let mapTranslateX = 0;
+        let mapTranslateY = 0;
+        
+        // Initialize drag and drop for map panning
+        mapInner.addEventListener('mousedown', (e) => {
+            // Only trigger on middle mouse button or left click on map background
+            if (e.button === 1 || (e.button === 0 && e.target === mapInner)) {
+                isDragging = true;
+                mapInner.classList.add('grabbing');
+                startX = e.pageX - mapInner.offsetLeft;
+                startY = e.pageY - mapInner.offsetTop;
+                scrollLeft = -mapTranslateX;
+                scrollTop = -mapTranslateY;
+            }
+        });
+        
+        mapInner.addEventListener('mouseleave', () => {
+            isDragging = false;
+            mapInner.classList.remove('grabbing');
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            mapInner.classList.remove('grabbing');
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const x = e.pageX - mapInner.offsetLeft;
+            const y = e.pageY - mapInner.offsetTop;
+            const walkX = (x - startX);
+            const walkY = (y - startY);
+            
+            mapTranslateX = -(scrollLeft - walkX);
+            mapTranslateY = -(scrollTop - walkY);
+            
+            // Apply the transform
+            mapInner.style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`;
+            
+            // Update mini-map view box
+            updateMiniMap();
+        });
+        
+        // Zoom functionality
+        function zoomMap(direction) {
+            // Get current center position
+            const containerRect = mapContainer.getBoundingClientRect();
+            const containerCenterX = containerRect.width / 2;
+            const containerCenterY = containerRect.height / 2;
+            
+            // Calculate current map center in relation to the transformed map
+            const mapCenterBeforeZoomX = (containerCenterX - mapTranslateX) / mapScale;
+            const mapCenterBeforeZoomY = (containerCenterY - mapTranslateY) / mapScale;
+            
+            // Change scale
+            if (direction === 'in') {
+                mapScale = Math.min(mapScale * 1.2, 5); // Max zoom 500%
+            } else if (direction === 'out') {
+                mapScale = Math.max(mapScale / 1.2, 0.2); // Min zoom 20%
+            } else if (direction === 'reset') {
+                mapScale = 1;
+                mapTranslateX = 0;
+                mapTranslateY = 0;
+                mapInner.style.transform = `translate(0px, 0px) scale(1)`;
+                updateMiniMap();
+                scaleIndicator.textContent = `Scale: 100%`;
+                return;
+            }
+            
+            // Calculate new map center after zoom
+            const mapCenterAfterZoomX = mapCenterBeforeZoomX * mapScale;
+            const mapCenterAfterZoomY = mapCenterBeforeZoomY * mapScale;
+            
+            // Adjust translation to keep the center point
+            mapTranslateX = containerCenterX - mapCenterAfterZoomX;
+            mapTranslateY = containerCenterY - mapCenterAfterZoomY;
+            
+            // Apply new transform
+            mapInner.style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`;
+            
+            // Update mini-map
+            updateMiniMap();
+            
+            // Update scale indicator
+            scaleIndicator.textContent = `Scale: ${Math.round(mapScale * 100)}%`;
+        }
+        
+        // Add zoom button click handlers
+        zoomInBtn.addEventListener('click', () => zoomMap('in'));
+        zoomOutBtn.addEventListener('click', () => zoomMap('out'));
+        resetViewBtn.addEventListener('click', () => zoomMap('reset'));
+        
+        // Add mouse wheel zoom
+        mapContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoomMap('in');
+            } else {
+                zoomMap('out');
+            }
+        });
+        
+        // Grid toggle
+        gridToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('hide-grid');
+            gridToggleBtn.textContent = document.body.classList.contains('hide-grid') ? 
+                'Show Grid' : 'Hide Grid';
+        });
+        
+        // Dark mode toggle
+        darkModeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            darkModeToggleBtn.textContent = document.body.classList.contains('dark-mode') ? 
+                'Light Mode' : 'Dark Mode';
+        });
+        
+        // Mini-map navigation click
+        document.querySelector('.mini-map').addEventListener('click', (e) => {
+            if (!currentDungeon) return;
+            
+            const miniMap = document.querySelector('.mini-map');
+            const miniMapRect = miniMap.getBoundingClientRect();
+            const miniMapContentRect = miniMapContent.getBoundingClientRect();
+            
+            // Get click position relative to mini-map
+            const clickX = e.clientX - miniMapRect.left;
+            const clickY = e.clientY - miniMapRect.top;
+            
+            // Calculate the scale of the mini-map
+            const mapWidth = dungeonMapEl.offsetWidth;
+            const mapHeight = dungeonMapEl.offsetHeight;
+            const containerWidth = mapContainer.offsetWidth;
+            const containerHeight = mapContainer.offsetHeight;
+            
+            const miniMapWidth = miniMap.offsetWidth;
+            const miniMapHeight = miniMap.offsetHeight;
+            const miniMapScale = Math.min(miniMapWidth / mapWidth, miniMapHeight / mapHeight) * 0.9;
+            
+            // Calculate the target center position in the original map scale
+            const targetCenterX = clickX / miniMapScale / miniMapContent.getBoundingClientRect().width * mapWidth;
+            const targetCenterY = clickY / miniMapScale / miniMapContent.getBoundingClientRect().height * mapHeight;
+            
+            // Calculate new translation to center the clicked point
+            mapTranslateX = containerWidth / 2 - targetCenterX * mapScale;
+            mapTranslateY = containerHeight / 2 - targetCenterY * mapScale;
+            
+            // Apply new transform
+            mapInner.style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`;
+            
+            // Update mini-map
+            updateMiniMap();
+        });
+        
+        // Initialize mini-map on dungeon generation
+        function initializeInteractiveMap() {
+            if (!currentDungeon) return;
+            
+            // Reset zoom and position
+            mapScale = 1;
+            mapTranslateX = 0;
+            mapTranslateY = 0;
+            mapInner.style.transform = `translate(0px, 0px) scale(1)`;
+            
+            // Update mini-map
+            updateMiniMap();
+            
+            // Reset scale indicator
+            scaleIndicator.textContent = `Scale: 100%`;
+            
+            // Reset grid and dark mode toggles
+            document.body.classList.remove('hide-grid');
+            document.body.classList.remove('dark-mode');
+            gridToggleBtn.textContent = 'Hide Grid';
+            darkModeToggleBtn.textContent = 'Dark Mode';
+        }
+        
+        // Update generateDungeon function to initialize the interactive map
+        // Using the existing originalGenerateDungeon variable instead of redeclaring it
+        generateDungeon = function() {
+            const dungeon = originalGenerateDungeon();
+            initializeInteractiveMap();
+            setupDragAndDrop();
+            return dungeon;
+        };
+        
+
+    </script>
+</body>
+</html>

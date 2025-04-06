@@ -1,0 +1,58 @@
+{
+  "name": "expedition-dungeon",
+  "version": "1.0.0",
+  "description": "Dungeon generator tool for tabletop RPGs",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-builder --win",
+    "package-mac": "electron-builder --mac",
+    "package-linux": "electron-builder --linux"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Owlcan/Expedition-Dungeon.git"
+  },
+  "keywords": [
+    "dungeon",
+    "generator",
+    "rpg",
+    "tool"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Owlcan/Expedition-Dungeon/issues"
+  },
+  "homepage": "https://github.com/Owlcan/Expedition-Dungeon#readme",
+  "devDependencies": {
+    "electron": "^35.1.4",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.expedition.dungeon",
+    "productName": "Expedition Dungeon Generator",
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/.git",
+      "!**/.idea",
+      "!**/dist"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility"
+    }
+  }
+}

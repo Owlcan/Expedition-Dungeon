@@ -3,6 +3,7 @@ export const MEDIUM_MONSTERS = [
     "name": "Darkling-Nightshade Elemental",
     "size": ["M"],
     "type": "elemental",
+    "imageUrl": "https://i.postimg.cc/x17tj7dV/darkling-nightshade-elemental.png",
     "stats": {
       "size": "medium",
       "challengeRating": 2,
@@ -41,6 +42,7 @@ export const MEDIUM_MONSTERS = [
     "name": "Darkforme-Ossokin-Aegisite",
     "size": ["M"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/VNnBfkTX/darkforme-ossokin-aegisite.png",
     "stats": {
       "size": "medium",
       "challengeRating": 3,
@@ -79,6 +81,7 @@ export const MEDIUM_MONSTERS = [
     "name": "The Darkformless",
     "size": ["M"],
     "type": "abomination elemental mage",
+    "imageUrl": "https://i.postimg.cc/v8zhxDmz/the-darkformless.png",
     "stats": {
       "size": "medium",
       "challengeRating": 4,
@@ -115,7 +118,7 @@ export const MEDIUM_MONSTERS = [
         },
         {
           "name": "Umbral Empowerment",
-          "description": "As a bonus action, it can grant an allied darkling within 30 ft. temporary hit points equal to its Intelligence modifier (minimum 1) or add +2 to that ally's next attack roll until the start of its next turn."
+          "description": "As a bonus action, it can grant an allied darkling within 30 ft. temporary hit points equal to its Intelligence modifier (minimum 1) or add +2 to that ally's next attack."
         }
       ]
     },
@@ -125,6 +128,7 @@ export const MEDIUM_MONSTERS = [
     "name": "Darkforme-Cactine Spinebearer",
     "size": ["M"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/C5LjsHK4/darkforme-spinebearer.png",
     "stats": {
       "size": "medium",
       "challengeRating": 3,
@@ -175,6 +179,7 @@ export const MEDIUM_MONSTERS = [
     "name": "Darkforme-Nightpinyon",
     "size": ["M"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/Z51xzdfT/darkforme-nightpinyon.png",
     "stats": {
       "size": "medium",
       "challengeRating": 2,

@@ -52,6 +52,18 @@ namespace donjon
 		BlockRoom = Blocked | Room,
 		BlockCorridor = Blocked | Perimeter | Corridor,
 		BlockDoor = Blocked | DoorSpace,
+		
+		// Added entity types
+		Monster = 0x10000000,
+		Item = 0x20000000,
+	};
+	
+	struct EntityPlacement
+	{
+		size_t row;
+		size_t col;
+		size_t id; // References an external entity ID (monster or item ID)
+		CellType type; // Monster or Item
 	};
 
 	struct Option
@@ -80,6 +92,18 @@ namespace donjon
 	class IDungeon
 	{
 	public:
+		virtual ~IDungeon() = default;
+		
+		// Get dungeon dimensions
+		virtual size_t GetRows() const = 0;
+		virtual size_t GetColumns() const = 0;
+		
+		// Get cell information
+		virtual CellType GetCellType(size_t row, size_t col) const = 0;
+		
+		// Entity placement methods
+		virtual void PlaceEntity(size_t row, size_t col, size_t entityId, CellType entityType) = 0;
+		virtual std::vector<EntityPlacement> GetEntityPlacements() const = 0;
 	};
 
 	class Factory

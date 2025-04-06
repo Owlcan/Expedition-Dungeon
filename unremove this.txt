@@ -1,0 +1,219 @@
+        // Map zooming and panning system
+        function initMapControls() {
+            const mapContainer = document.querySelector('.dungeon-map-container');
+            const mapInner = document.querySelector('.dungeon-map-inner');
+            const dungeonMap = document.getElementById('dungeonMap');
+            const miniMapContent = document.querySelector('.mini-map-content');
+            const viewBox = document.querySelector('.view-box');
+            const scaleIndicator = document.querySelector('.scale-indicator');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const resetViewBtn = document.getElementById('resetView');
+            const gridToggleBtn = document.querySelector('.grid-toggle');
+            const darkModeToggleBtn = document.querySelector('.dark-mode-toggle');
+            
+            // Remove any existing event listeners (important to prevent duplicates)
+            const newMapInner = mapInner.cloneNode(true);
+            mapInner.parentNode.replaceChild(newMapInner, mapInner);
+            
+            // Reset variables
+            let mapScale = 1;
+            let mapTranslateX = 0;
+            let mapTranslateY = 0;
+            let isDragging = false;
+            let startX, startY, scrollLeft, scrollTop;
+            
+            // Function to update map transform
+            function updateMapTransform() {
+                newMapInner.style.transform = `translate(${mapTranslateX}px, ${mapTranslateY}px) scale(${mapScale})`;
+                updateMiniMap();
+                scaleIndicator.textContent = `Scale: ${Math.round(mapScale * 100)}%`;
+            }
+            
+            // Function to update mini-map
+            function updateMiniMap() {
+                if (!currentDungeon) return;
+                
+                try {
+                    const mapWidth = dungeonMap.offsetWidth;
+                    const mapHeight = dungeonMap.offsetHeight;
+                    const containerWidth = mapContainer.offsetWidth;
+                    const containerHeight = mapContainer.offsetHeight;
+                    
+                    // Calculate mini-map scale (fit dungeon in mini-map)
+                    const miniMapWidth = document.querySelector('.mini-map').offsetWidth;
+                    const miniMapHeight = document.querySelector('.mini-map').offsetHeight;
+                    const scaleX = miniMapWidth / mapWidth;
+                    const scaleY = miniMapHeight / mapHeight;
+                    const miniMapScale = Math.min(scaleX, scaleY) * 0.9; // 90% to leave margin
+                    
+                    // Set mini-map content
+                    miniMapContent.innerHTML = dungeonMap.innerHTML;
+                    miniMapContent.style.transform = `scale(${miniMapScale})`;
+                    
+                    // Update viewbox position and size
+                    const viewBoxWidth = Math.min(containerWidth / mapWidth / mapScale * miniMapWidth, miniMapWidth);
+                    const viewBoxHeight = Math.min(containerHeight / mapHeight / mapScale * miniMapHeight, miniMapHeight);
+                    
+                    viewBox.style.width = `${viewBoxWidth}px`;
+                    viewBox.style.height = `${viewBoxHeight}px`;
+                    
+                    const viewBoxX = Math.abs(mapTranslateX) / mapWidth * miniMapWidth * miniMapScale;
+                    const viewBoxY = Math.abs(mapTranslateY) / mapHeight * miniMapHeight * miniMapScale;
+                    
+                    viewBox.style.left = `${viewBoxX}px`;
+                    viewBox.style.top = `${viewBoxY}px`;
+                    
+                    // Remove event listeners from mini-map elements
+                    miniMapContent.querySelectorAll('td').forEach(td => {
+                        td.removeAttribute('title');
+                        td.style.cursor = 'default';
+                        td.style.pointerEvents = 'none';
+                    });
+                } catch (err) {
+                    console.error('Error updating mini-map:', err);
+                }
+            }
+            
+            // Function to zoom the map
+            function zoomMap(direction) {
+                // Get current center position
+                const containerRect = mapContainer.getBoundingClientRect();
+                const containerCenterX = containerRect.width / 2;
+                const containerCenterY = containerRect.height / 2;
+                
+                // Calculate current map center in relation to the transformed map
+                const mapCenterBeforeZoomX = (containerCenterX - mapTranslateX) / mapScale;
+                const mapCenterBeforeZoomY = (containerCenterY - mapTranslateY) / mapScale;
+                
+                // Change scale
+                if (direction === 'in') {
+                    mapScale = Math.min(mapScale * 1.2, 5); // Max zoom 500%
+                } else if (direction === 'out') {
+                    mapScale = Math.max(mapScale / 1.2, 0.2); // Min zoom 20%
+                } else if (direction === 'reset') {
+                    mapScale = 1;
+                    mapTranslateX = 0;
+                    mapTranslateY = 0;
+                    updateMapTransform();
+                    return;
+                }
+                
+                // Calculate new map center after zoom
+                const mapCenterAfterZoomX = mapCenterBeforeZoomX * mapScale;
+                const mapCenterAfterZoomY = mapCenterBeforeZoomY * mapScale;
+                
+                // Adjust translation to keep the center point
+                mapTranslateX = containerCenterX - mapCenterAfterZoomX;
+                mapTranslateY = containerCenterY - mapCenterAfterZoomY;
+                
+                // Apply new transform
+                updateMapTransform();
+            }
+            
+            // Mousedown event for drag
+            newMapInner.addEventListener('mousedown', (e) => {
+                // Only trigger on middle mouse button or left click on map background
+                if (e.button === 1 || (e.button === 0 && e.target === newMapInner)) {
+                    isDragging = true;
+                    newMapInner.classList.add('grabbing');
+                    startX = e.pageX - newMapInner.offsetLeft;
+                    startY = e.pageY - newMapInner.offsetTop;
+                    scrollLeft = -mapTranslateX;
+                    scrollTop = -mapTranslateY;
+                    e.preventDefault();
+                }
+            });
+            
+            // Mouseleave event
+            newMapInner.addEventListener('mouseleave', () => {
+                isDragging = false;
+                newMapInner.classList.remove('grabbing');
+            });
+            
+            // Mouseup event
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                newMapInner.classList.remove('grabbing');
+            });
+            
+            // Mousemove event for dragging
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                
+                const x = e.pageX - newMapInner.offsetLeft;
+                const y = e.pageY - newMapInner.offsetTop;
+                const walkX = (x - startX);
+                const walkY = (y - startY);
+                
+                mapTranslateX = -(scrollLeft - walkX);
+                mapTranslateY = -(scrollTop - walkY);
+                
+                // Apply the transform
+                updateMapTransform();
+            });
+            
+            // Zoom button event handlers
+            zoomInBtn.addEventListener('click', () => zoomMap('in'));
+            zoomOutBtn.addEventListener('click', () => zoomMap('out'));
+            resetViewBtn.addEventListener('click', () => zoomMap('reset'));
+            
+            // Mouse wheel zoom
+            mapContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    zoomMap('in');
+                } else {
+                    zoomMap('out');
+                }
+            });
+            
+            // Grid toggle
+            gridToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('hide-grid');
+                gridToggleBtn.textContent = document.body.classList.contains('hide-grid') ? 
+                    'Show Grid' : 'Hide Grid';
+            });
+            
+            // Dark mode toggle
+            darkModeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                darkModeToggleBtn.textContent = document.body.classList.contains('dark-mode') ? 
+                    'Light Mode' : 'Dark Mode';
+            });
+            
+            // Mini-map navigation click
+            document.querySelector('.mini-map').addEventListener('click', (e) => {
+                if (!currentDungeon) return;
+                
+                const miniMap = document.querySelector('.mini-map');
+                const miniMapRect = miniMap.getBoundingClientRect();
+                
+                // Get click position relative to mini-map
+                const clickX = e.clientX - miniMapRect.left;
+                const clickY = e.clientY - miniMapRect.top;
+                
+                // Calculate the scale of the mini-map
+                const mapWidth = dungeonMap.offsetWidth;
+                const mapHeight = dungeonMap.offsetHeight;
+                const containerWidth = mapContainer.offsetWidth;
+                const containerHeight = mapContainer.offsetHeight;
+                
+                const miniMapWidth = miniMap.offsetWidth;
+                const miniMapHeight = miniMap.offsetHeight;
+                const miniMapScale = Math.min(miniMapWidth / mapWidth, miniMapHeight / mapHeight) * 0.9;
+                
+                // Calculate the target center position in the original map scale
+                const targetCenterX = clickX / miniMapScale / miniMapContent.getBoundingClientRect().width * mapWidth;
+                const targetCenterY = clickY / miniMapScale / miniMapContent.getBoundingClientRect().height * mapHeight;
+                
+                // Calculate new translation to center the clicked point
+                mapTranslateX = containerWidth / 2 - targetCenterX * mapScale;
+                mapTranslateY = containerHeight / 2 - targetCenterY * mapScale;
+                
+                // Apply new transform
+                updateMapTransform();
+            });
+            
+            // Initial update of the mini-map

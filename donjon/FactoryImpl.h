@@ -27,6 +27,10 @@ namespace donjon
 		void EmplaceCorridors(const Option&, Dungeon&) const;
 		void EmplaceStairs(const Option&, Dungeon&) const;
 		void ClearDungeon(const Option&, Dungeon&) const;
+		
+		// New methods for entity placement
+		void EmplaceMonsters(const Option&, Dungeon&) const;
+		void EmplaceItems(const Option&, Dungeon&) const;
 
 	};
 }

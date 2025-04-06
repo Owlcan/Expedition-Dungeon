@@ -3,6 +3,7 @@ export const TINY_MONSTERS = [
     "name": "Darkling-Crawler",
     "size": ["T"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/GhgjzNGT/slitherscale.png",
     "stats": {
       "size": "tiny",
       "challengeRating": 1,
@@ -31,7 +32,7 @@ export const TINY_MONSTERS = [
       "abilities": [
         {
           "name": "Pack Tactics",
-          "description": "The crawler has advantage on an attack roll against a creature if at least one of the crawler's allies is within 5 feet of the creature and the ally isn't incapacitated."
+          "description": "The crawler has advantage on an attack roll against a creature if at least one of the Crawler's allies is within 5 feet of the creature and the ally isn't incapacitated."
         }
       ]
     },
@@ -41,6 +42,7 @@ export const TINY_MONSTERS = [
     "name": "Darkling-Ossokin",
     "size": ["T"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/Z51xzdfT/darkling-ossokin.png",
     "stats": {
       "size": "tiny",
       "challengeRating": 0.125,
@@ -69,6 +71,7 @@ export const TINY_MONSTERS = [
     "name": "Darkling-Hooter",
     "size": ["T"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/br86ctwG/darkling-hooter.png",
     "stats": {
       "size": "tiny",
       "challengeRating": 0.125,
@@ -98,5 +101,4 @@ export const TINY_MONSTERS = [
     },
     "tokenSize": 1
   }
-]; // End of TINY_MONSTERS array
-// Compare this snippet from src/dungeonModule/data/bestiary/large-monsters.js:
+];

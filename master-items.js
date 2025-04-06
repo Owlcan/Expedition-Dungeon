@@ -1,14 +1,16 @@
-export interface Item {
-    internalId: number;
-    id: string;
-    name: string;
-    type: string;
-    category: string;
-    description: string;
-    biome: string[]; // Add biome tags
-}
+// filepath: c:\Users\Lulu\OneDrive\Documents\Expedition-Dungeon\master-items.js
+/**
+ * @typedef {Object} Item
+ * @property {number} internalId - Unique identifier number
+ * @property {string} id - String identifier
+ * @property {string} name - Display name
+ * @property {string} type - Item type
+ * @property {string} category - Item category
+ * @property {string} description - Item description
+ * @property {string[]} biome - Biome tags where the item can be found
+ */
 
-export const items: Item[] = [
+export const items = [
     {
         internalId: 1,
         id: 'adhesive',

@@ -3,6 +3,7 @@ export const HUGE_MONSTERS = [
     "name": "Darkaconda",
     "size": ["H"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/GhgjzNGT/darkaconda.png",
     "stats": {
       "size": "huge",
       "challengeRating": 4,
@@ -31,11 +32,11 @@ export const HUGE_MONSTERS = [
       "abilities": [
         {
           "name": "Serpent-Lance Lunge",
-          "description": "If the Darkaconda has not moved on its previous turn, it may spend that turn coiling. On the following turn, it can extend up to 60 ft. in any direction and make one attack using any available action. Recharges on a 5–6 roll at the start of its turn."
+          "description": "If the Darkaconda has not moved on its previous turn, it may spend that turn coiling. On the following turn, it can extend up to 60 ft. in any direction and make one attack."
         },
         {
           "name": "Swallow",
-          "description": "When the Darkaconda grapples a creature, it can attempt to swallow it. A swallowed creature takes 2d8 piercing damage at the start of each of its turns and is restrained. The creature can attempt to escape by succeeding on a DC 15 Strength (Athletics) or Dexterity (Acrobatics) check."
+          "description": "When the Darkaconda grapples a creature, it can attempt to swallow it. A swallowed creature takes 2d8 piercing damage at the start of each of its turns and is restrained."
         }
       ]
     },
@@ -45,6 +46,7 @@ export const HUGE_MONSTERS = [
     "name": "Darkforme-Ossuarian",
     "size": ["H"],
     "type": "abomination",
+    "imageUrl": "https://i.postimg.cc/9M2Prj5K/Darkforme-Ossuarian.png",
     "stats": {
       "size": "huge",
       "challengeRating": 7,
@@ -85,14 +87,14 @@ export const HUGE_MONSTERS = [
       "abilities": [
         {
           "name": "Pants-Crapping Fear Presence",
-          "description": "Any creature within 30 ft. that can see the Darkforme-Ossuarian must succeed on a DC 16 Wisdom saving throw or become frightened for 1 minute—and experience disarray in their clothing."
+          "description": "Any creature within 30 ft. that can see the Darkforme-Ossuarian must succeed on a DC 16 Wisdom saving throw or become frightened for 1 minute—and experience disarray in battle."
         },
         {
           "name": "Living Ossuary Spellcasting",
-          "description": "The Darkforme-Ossuarian is a 7th-level spellcaster (Wisdom, spell save DC 15, +7 to hit with spells) with spells prepared: Toll the Dead and Spare the Dying at will; Inflict Wounds and Guiding Bolt (1st level, 4 slots); Spiritual Weapon, Hold Person, Blindness/Deafness (2nd level, 3 slots); Animate Dead, Blight, Bestow Curse (3rd level, 2 slots)."
+          "description": "The Darkforme-Ossuarian is a 7th-level spellcaster (Wisdom, spell save DC 15, +7 to hit with spells) with spells prepared: Toll the Dead and Spare the Dying at will; Inflict Wounds, Shield of Faith."
         }
       ]
     },
     "tokenSize": 3
   }
-];  // End of HUGE_MONSTERS array
+];
