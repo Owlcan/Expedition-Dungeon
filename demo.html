@@ -12,7 +12,6 @@
         <header class="header">
             <h1>Expedition Dungeon Generator</h1>
         </header>
-
         <!-- Left sidebar for dungeon generator controls -->
         <aside class="left-sidebar">
             <div class="dungeon-controls">
@@ -142,14 +141,22 @@
                         <input type="checkbox" id="smoothMap" checked>
                         Smooth Map
                     </label>
-                    
+
                     <label>
                         Smoothing Iterations:
                         <input type="range" id="smoothIterations" value="2" min="1" max="5" step="1">
                         <span id="smoothIterationsValue">2</span>
                     </label>
                 </div>
-                
+                <div class="dungeon-controls">
+                    <div class="control-group">
+                        <label for="roomCountSlider">Room Count:</label>
+                        <div class="room-count-slider">
+                            <input type="range" id="roomCountSlider" min="5" max="30" value="15" step="1">
+                            <output for="roomCountSlider">15</output>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <label>
                         <input type="checkbox" id="addWater">
