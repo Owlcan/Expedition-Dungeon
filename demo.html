@@ -247,6 +247,49 @@
                         </select>
                     </label>
                 </div>
+
+                <div>
+                    <label>
+                        Room Count:
+                        <div class="room-count-slider">
+                            <input type="range" id="roomCountSlider" min="5" max="30" value="15" step="1">
+                            <output for="roomCountSlider">15</output>
+                        </div>
+                    </label>
+                </div>
+
+                <div>
+                    <label>
+                        Dungeon Theme:
+                        <select id="dungeonTheme" class="theme-select">
+                            <option value="standard">Standard Dungeon</option>
+                            <option value="bone-crypt">Bone Crypt Ossuary</option>
+                            <option value="dark-dimension">Dark Dimension</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Theme Features:
+                        <div class="theme-features">
+                            <!-- Standard Theme -->
+                            <div class="feature-group" data-theme="standard">
+                                <label><input type="checkbox" name="standard-features" value="torches"> Torches</label>
+                                <label><input type="checkbox" name="standard-features" value="columns"> Columns</label>
+                            </div>
+                            <!-- Bone Crypt Theme -->
+                            <div class="feature-group" data-theme="bone-crypt">
+                                <label><input type="checkbox" name="crypt-features" value="tombs"> Tombs</label>
+                                <label><input type="checkbox" name="crypt-features" value="bones"> Bone Piles</label>
+                                <label><input type="checkbox" name="crypt-features" value="altars"> Altars</label>
+                            </div>
+                            <!-- Dark Dimension Theme -->
+                            <div class="feature-group" data-theme="dark-dimension">
+                                <label><input type="checkbox" name="dark-features" value="void"> Void Rifts</label>
+                                <label><input type="checkbox" name="dark-features" value="portals"> Dark Portals</label>
+                            </div>
+                        </div>
+                    </label>
+                </div>
             </div>
         </aside>
         
@@ -521,8 +564,94 @@ import { DungeonGenerator } from './DungeonGenerator.js';
         const addPlayerBtn = document.getElementById('addPlayerBtn');
         const playerTokensList = document.getElementById('playerTokensList');
 
-                // Initialize on page load
-                window.addEventListener('load', () => {
+        // Room count slider functionality
+        const roomCountSlider = document.getElementById('roomCountSlider');
+        const roomCountOutput = roomCountSlider.nextElementSibling;
+
+        roomCountSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            roomCountOutput.value = value;
+            if (window.dungeonOptions) {
+                window.dungeonOptions.roomCount = parseInt(value);
+            }
+        });
+
+        // Theme handling
+        const themeSelect = document.getElementById('dungeonTheme');
+        const featureGroups = document.querySelectorAll('.feature-group');
+
+        themeSelect.addEventListener('change', (e) => {
+            const selectedTheme = e.target.value;
+            
+            // Update visible feature groups
+            featureGroups.forEach(group => {
+                if (group.dataset.theme === selectedTheme) {
+                    group.style.display = 'block';
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+            
+            // Update dungeon options
+            if (window.dungeonOptions) {
+                window.dungeonOptions.theme = selectedTheme;
+                window.dungeonOptions.themeFeatures = getSelectedFeatures(selectedTheme);
+            }
+            
+            // Trigger dungeon update if it exists
+            if (currentDungeon) {
+                applyTheme(currentDungeon, selectedTheme);
+            }
+        });
+
+        function getSelectedFeatures(theme) {
+            const features = [];
+            const checkboxes = document.querySelectorAll(`[name="${theme}-features"]:checked`);
+            checkboxes.forEach(cb => features.push(cb.value));
+            return features;
+        }
+
+        function applyTheme(dungeon, theme) {
+            // Apply theme-specific cell types and colors
+            for (let y = 0; y < dungeon.height; y++) {
+                for (let x = 0; x < dungeon.width; x++) {
+                    const cell = dungeon.cells[y][x];
+                    
+                    switch (theme) {
+                        case 'bone-crypt':
+                            if (cell.type === 'room') cell.type = 'crypt';
+                            if (cell.type === 'corridor') cell.type = 'crypt-corridor';
+                            break;
+                            
+                        case 'dark-dimension':
+                            if (cell.type === 'room') cell.type = 'dark-room';
+                            if (cell.type === 'corridor') cell.type = 'dark-corridor';
+                            break;
+                            
+                        default:
+                            // Reset to standard types
+                            if (cell.type === 'crypt') cell.type = 'room';
+                            if (cell.type === 'crypt-corridor') cell.type = 'corridor';
+                            if (cell.type === 'dark-room') cell.type = 'room';
+                            if (cell.type === 'dark-corridor') cell.type = 'corridor';
+                    }
+                }
+            }
+            
+            // Re-render dungeon with new theme
+            renderDungeon(dungeon);
+        }
+
+        // Initialize theme on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialTheme = themeSelect.value;
+            featureGroups.forEach(group => {
+                group.style.display = group.dataset.theme === initialTheme ? 'block' : 'none';
+            });
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
             // Make sure the dungeon is generated first
             setTimeout(() => {
                 setupDragAndDrop();

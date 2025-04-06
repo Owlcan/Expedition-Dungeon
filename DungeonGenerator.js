@@ -33,6 +33,8 @@ import {
     treasureSanitizer
 } from './TreasureGenerator.js';
 
+import { RoomDesignations, assignRoomDesignation, decorateRoom } from './RoomDesignations.js';
+
 /**
  * Traditional dungeon treasure types (imported from TreasureGenerator)
 // Using the imported TREASURE_TYPES instead of redefining it
@@ -83,7 +85,7 @@ function mapMonsterIdToMonster(monsterId, dungeonType = 'standard') {
         } else if (monsterId < 200) {
             return smallDark[(monsterId - 100) % smallDark.length];
         } else if (monsterId < 300) {
-            return mediumDark[(monsterId - 200) % mediumDark.length];
+            return mediumDark[(monsterId - 200) % smallDark.length];
         } else if (monsterId < 400) {
             return largeDark[(monsterId - 300) % largeDark.length];
         } else if (monsterId < 500) {
@@ -337,573 +339,310 @@ class Room {
  * Main DungeonGenerator class for creating and managing procedural dungeons
  */
 export class DungeonGenerator {
-    /**
-     * Create a new DungeonGenerator
-     * @param {Object} options - Generator options
-     */
     constructor(options = {}) {
-        this.width = options.width || 50;
-        this.height = options.height || 50;
-        this.seed = options.seed || Math.floor(Math.random() * 1000000);
-        this.dungeonType = options.dungeonType || 'standard';
-        this.mapType = options.mapType || 'maze'; // Default to maze for backward compatibility
-        this.roomDensity = options.roomDensity || 0.5;
-        this.corridorWidth = options.corridorWidth || 1;
-        this.waterPools = options.waterPools || 0;
-        this.treasureDensity = options.treasureDensity || 1.0;
-        this.monsterDensity = options.monsterDensity || 1.0;
-        this.random = new SeededRandom(this.seed);
-        
-        // Map generation specific options
-        this.roomSizeMin = options.roomSizeMin || 4;
-        this.roomSizeMax = options.roomSizeMax || 10;
-        this.caveRoundness = options.caveRoundness || 0.5; // For cave generation (higher = rounder)
-        this.openSpaceAmount = options.openSpaceAmount || 0.8; // For open plan (higher = more open)
-        this.moduleSize = options.moduleSize || 10; // For modular dungeons
-        
-        // Grid will be populated upon generate()
-        this.grid = null;
-        this.rooms = [];
-        this.monsters = [];
-        this.treasures = [];
-    }
-    
-    /**
-     * Generate a complete dungeon with all features
-     * @returns {Object} Generated dungeon data
-     */
-    generate() {
-        // Generate base dungeon structure based on selected map type
-        switch (this.mapType) {
-            case 'maze':
-                this.grid = generateMaze(this.width, this.height, this.random);
-                break;
-                
-            case 'rooms':
-                this.grid = generateRoomsAndCorridors(this.width, this.height, this.random, {
-                    minRooms: Math.floor(10 * this.roomDensity),
-                    maxRooms: Math.floor(20 * this.roomDensity),
-                    minRoomSize: this.roomSizeMin,
-                    maxRoomSize: this.roomSizeMax,
-                    corridorWidth: this.corridorWidth,
-                    roomSpacing: 1,
-                    removeDeadEnds: true
-                });
-                break;
-                
-            case 'cave':
-                this.grid = generateCaveDungeon(this.width, this.height, this.random, {
-                    initialDensity: 0.45,
-                    birthLimit: 4,
-                    deathLimit: 3,
-                    iterations: 4
-                });
-                break;
-                
-            case 'open':
-                this.grid = generateOpenPlanDungeon(this.width, this.height, this.random, {
-                    pillarDensity: 0.05,
-                    obstacleChance: 0.2,
-                    withPartitions: true,
-                    openness: this.openSpaceAmount
-                });
-                break;
-                
-            case 'modular':
-                const result = generateModularDungeon(this.width, this.height, this.random, {
-                    roomModules: 'mixed',
-                    hallwayWidth: 2,
-                    moduleSize: this.moduleSize
-                });
-                this.grid = result.dungeon;
-                this.rooms = result.placedRooms;
-                break;
-                
-            default:
-                // Fallback to maze generation
-                this.grid = generateMaze(this.width, this.height, this.random);
-                break;
-        }
-        
-        // Apply smoothing if required
-        if (this.smoothMap && this.smoothIterations > 0) {
-            this.grid = smoothMap(this.grid, this.smoothIterations, 4, 3);
-        }
-        
-        // Add water features if specified
-        if (this.waterPools > 0) {
-            const waterType = this.waterType || 'water';
-            this.grid = addWaterFeatures(this.grid, this.waterPools / 100, this.random);
-        }
-        
-        // Find all rooms in the grid if not already set by modular generation
-        if (!this.rooms || this.rooms.length === 0) {
-            this.findRooms();
-        }
-        
-        // Populate the dungeon
-        const monsterResult = populateWithMonsters(this.grid, this.monsterDensity * 0.03, this.random, this.dungeonType);
-        this.grid = monsterResult.cells;
-        this.monsters = monsterResult.monsterPositions.map(pos => ({
-            x: pos.x,
-            y: pos.y,
-            monster: mapMonsterIdToMonster(pos.monsterId, this.dungeonType)
-        }));
-        
-        // Make sure to pass the random object to populateWithTreasure
-        const treasureResult = populateWithTreasure(this.grid, this.treasureDensity * 0.05, this.random);
-        this.grid = treasureResult.cells;
-        
-        // Process the treasure positions to ensure each treasure has valid properties
-        this.treasures = treasureResult.treasurePositions.map(pos => {
-            let treasure = pos.treasure;
-            
-            // If the treasure is undefined or missing required properties, generate a new one
-            if (!treasure || (!treasure.totalValue && !treasure.value)) {
-                const treasureTypes = ['coins', 'gems', 'items', 'magic', 'hoard']; 
-                const treasureType = this.random.select(treasureTypes);
-                
-                switch (treasureType) {
-                    case 'coins':
-                        treasure = generateCoinTreasure(this.random);
-                        break;
-                    case 'gems':
-                        treasure = generateGemTreasure(this.random);
-                        break;
-                    case 'items':
-                        treasure = generateItemTreasure(this.random);
-                        break;
-                    case 'magic':
-                        treasure = generateMagicalTreasure(this.random);
-                        break;
-                    case 'hoard':
-                        treasure = generateTreasureHoard(this.random);
-                        break;
-                    default:
-                        treasure = generateCoinTreasure(this.random);
-                        break;
-                }
-            }
-            
-            // Ensure the treasure has correct structure
-            if (!treasure.totalValue && treasure.value) {
-                treasure.totalValue = treasure.value;
-            } else if (!treasure.value && treasure.totalValue) {
-                treasure.value = treasure.totalValue;
-            }
-            
-            // If still no value, set a default
-            if (!treasure.totalValue) {
-                treasure.totalValue = 10;
-                treasure.value = 10;
-            }
-            
-            return {
-                x: pos.x,
-                y: pos.y,
-                treasure: treasure
-            };
-        });
-        
-        // Add columns at a low density if in open areas
-        if (this.mapType === 'open' || this.mapType === 'modular') {
-            this.grid = addColumns(this.grid, 0.02, this.random);
-        }
-        
-        // Create entities array combining monsters and treasures
-        const entities = [];
-        
-        // Add monsters to entities
-        this.monsters.forEach(monster => {
-            entities.push({
-                row: monster.y,
-                col: monster.x,
-                type: 'monster',
-                monster: monster.monster
-            });
-        });
-        
-        // Add treasures to entities
-        this.treasures.forEach(treasure => {
-            entities.push({
-                row: treasure.y,
-                col: treasure.x,
-                type: 'treasure',
-                treasure: treasure.treasure,
-                displayName: getTreasureDisplayName(treasure.treasure)
-            });
-        });
-        
-        return {
-            grid: this.grid,
-            cells: this.grid,
-            width: this.width,
-            height: this.height,
-            rooms: this.rooms,
-            monsters: this.monsters,
-            treasures: this.treasures,
-            entities: entities,
-            seed: this.seed,
-            type: this.dungeonType,
-            mapType: this.mapType
+        // Default options
+        this.options = {
+            width: 50,
+            height: 50,
+            roomCount: 15,
+            minRoomSize: 3,
+            maxRoomSize: 8,
+            corridorWidth: 1,
+            roomSpacing: 1,
+            dungeonType: 'standard',
+            theme: 'standard',
+            seed: Math.floor(Math.random() * 1000000),
+            ...options  // Merge provided options
+        };
+
+        // Initialize random generator with seed
+        this.random = {
+            next: () => Math.random(),  // Replace with seeded random if needed
+            seed: this.options.seed
         };
     }
-    
-    /**
-     * Find all rooms in the dungeon grid
-     */
-    findRooms() {
-        this.rooms = [];
-        const visited = Array(this.height).fill().map(() => Array(this.width).fill(false));
-        
-        for (let y = 1; y < this.height - 1; y++) {
-            for (let x = 1; x < this.width - 1; x++) {
-                // Find room cells that haven't been visited
-                if ((this.grid[y][x].type === 'room' || this.grid[y][x].type === 'corridor') && !visited[y][x]) {
-                    // Found a new room, flood fill to find its extent
-                    let minX = x, maxX = x, minY = y, maxY = y;
-                    const queue = [{ x, y }];
-                    visited[y][x] = true;
-                    
-                    while (queue.length > 0) {
-                        const cell = queue.shift();
-                        minX = Math.min(minX, cell.x);
-                        maxX = Math.max(maxX, cell.x);
-                        minY = Math.min(minY, cell.y);
-                        maxY = Math.max(maxY, cell.y);
-                        
-                        // Check adjacent cells
-                        const directions = [
-                            { dx: -1, dy: 0 },
-                            { dx: 1, dy: 0 },
-                            { dx: 0, dy: -1 },
-                            { dx: 0, dy: 1 }
-                        ];
-                        
-                        for (const dir of directions) {
-                            const nx = cell.x + dir.dx;
-                            const ny = cell.y + dir.dy;
-                            
-                            if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height &&
-                                !visited[ny][nx] && this.grid[ny][nx].type === this.grid[y][x].type) {
-                                visited[ny][nx] = true;
-                                queue.push({ x: nx, y: ny });
-                            }
-                        }
-                    }
-                    
-                    // Add room to list
-                    const roomWidth = maxX - minX + 1;
-                    const roomHeight = maxY - minY + 1;
-                    
-                    // Only add if the room is large enough
-                    if (roomWidth >= 3 && roomHeight >= 3) {
-                        this.rooms.push(new Room(minX, minY, roomWidth, roomHeight));
+
+    generate() {
+        const dungeon = {
+            width: this.options.width,
+            height: this.options.height,
+            cells: Array(this.options.height).fill().map(() => 
+                Array(this.options.width).fill().map(() => ({ 
+                    type: 'wall', 
+                    blocked: true 
+                }))
+            ),
+            rooms: [],
+            entities: [],
+            theme: this.options.theme,
+            options: this.options  // Store options with dungeon
+        };
+
+        // Generate rooms first
+        dungeon.rooms = this.generateRooms(dungeon);
+
+        // Connect rooms
+        this.connectRooms(dungeon);
+
+        // Add features based on theme
+        this.applyTheme(dungeon);
+
+        return dungeon;
+    }
+
+    generateRooms(dungeon) {
+        const rooms = [];
+        const attempts = this.options.roomCount * 2;
+
+        for (let i = 0; i < attempts && rooms.length < this.options.roomCount; i++) {
+            const width = Math.floor(this.random.next() * 
+                (this.options.maxRoomSize - this.options.minRoomSize + 1) + 
+                this.options.minRoomSize);
+            const height = Math.floor(this.random.next() * 
+                (this.options.maxRoomSize - this.options.minRoomSize + 1) + 
+                this.options.minRoomSize);
+
+            const x = Math.floor(this.random.next() * (dungeon.width - width - 2) + 1);
+            const y = Math.floor(this.random.next() * (dungeon.height - height - 2) + 1);
+
+            // Check for room overlap
+            let overlaps = false;
+            for (const room of rooms) {
+                if (x < room.x + room.width + this.options.roomSpacing && 
+                    x + width + this.options.roomSpacing > room.x && 
+                    y < room.y + room.height + this.options.roomSpacing && 
+                    y + height + this.options.roomSpacing > room.y) {
+                    overlaps = true;
+                    break;
+                }
+            }
+
+            if (!overlaps) {
+                const room = {
+                    x, y, width, height,
+                    type: this.options.dungeonType,
+                    theme: this.options.theme
+                };
+                rooms.push(room);
+
+                // Carve room into dungeon cells
+                for (let ry = y; ry < y + height; ry++) {
+                    for (let rx = x; rx < x + width; rx++) {
+                        dungeon.cells[ry][rx] = { 
+                            type: 'room',
+                            blocked: false,
+                            roomId: rooms.length - 1
+                        };
                     }
                 }
             }
         }
-        
-        return this.rooms;
+
+        return rooms;
     }
-    
-    /**
-     * Populate the dungeon with monsters
-     */
-    populateMonsters() {
-        this.monsters = [];
+
+    connectRooms(dungeon) {
+        const { rooms } = dungeon;
         
-        // Place monsters in rooms or open areas
-        const monsterCount = Math.floor(this.rooms.length * this.monsterDensity * 1.5);
-        
-        for (let i = 0; i < monsterCount; i++) {
-            // Try to place each monster
-            let attempts = 0;
-            let placed = false;
+        // Create edges between all rooms
+        for (let i = 0; i < rooms.length - 1; i++) {
+            const startRoom = rooms[i];
+            const endRoom = rooms[i + 1];
             
-            // First try rooms
-            if (this.rooms.length > 0 && this.random.next() < 0.7) {
-                while (!placed && attempts < 10) {
-                    // Pick a random room
-                    const roomIndex = this.random.nextInt(0, this.rooms.length);
-                    const room = this.rooms[roomIndex];
-                    
-                    // Pick a random position in the room
-                    const x = this.random.nextInt(room.x, room.x + room.width);
-                    const y = this.random.nextInt(room.y, room.y + room.height);
-                    
-                    // Check if the position is valid (not blocked, not an entrance/exit)
-                    if (!this.grid[y][x].blocked && 
-                        this.grid[y][x].type !== 'entrance' && 
-                        this.grid[y][x].type !== 'exit' &&
-                        this.grid[y][x].type !== 'water' &&
-                        !this.monsterAt(x, y)) {
-                        
-                        // Generate a monster
-                        const monsterId = this.random.nextInt(0, 500);
-                        const monster = mapMonsterIdToMonster(monsterId, this.dungeonType);
-                        
-                        if (monster) {
-                            this.monsters.push({ x, y, monster });
-                            placed = true;
-                        }
-                    }
-                    
-                    attempts++;
-                }
+            // Get room centers
+            const startX = Math.floor(startRoom.x + startRoom.width / 2);
+            const startY = Math.floor(startRoom.y + startRoom.height / 2);
+            const endX = Math.floor(endRoom.x + endRoom.width / 2);
+            const endY = Math.floor(endRoom.y + endRoom.height / 2);
+            
+            // Randomly choose horizontal-first or vertical-first corridor
+            if (this.random.next() > 0.5) {
+                this.createHorizontalCorridor(dungeon, startX, endX, startY);
+                this.createVerticalCorridor(dungeon, startY, endY, endX);
+            } else {
+                this.createVerticalCorridor(dungeon, startY, endY, startX);
+                this.createHorizontalCorridor(dungeon, startX, endX, endY);
             }
-            
-            // If we couldn't place in a room, try anywhere
-            if (!placed) {
-                attempts = 0;
+        }
+    }
+
+    createHorizontalCorridor(dungeon, startX, endX, y) {
+        const minX = Math.min(startX, endX);
+        const maxX = Math.max(startX, endX);
+        
+        for (let x = minX; x <= maxX; x++) {
+            if (dungeon.cells[y][x].type === 'wall') {
+                dungeon.cells[y][x] = { type: 'corridor', blocked: false };
                 
-                while (!placed && attempts < 20) {
-                    // Pick a random position
-                    const x = this.random.nextInt(1, this.width - 1);
-                    const y = this.random.nextInt(1, this.height - 1);
-                    
-                    // Check if the position is valid
-                    if (!this.grid[y][x].blocked && 
-                        this.grid[y][x].type !== 'wall' &&
-                        this.grid[y][x].type !== 'entrance' && 
-                        this.grid[y][x].type !== 'exit' &&
-                        this.grid[y][x].type !== 'water' &&
-                        !this.monsterAt(x, y)) {
-                        
-                        // Generate a monster
-                        const monsterId = this.random.nextInt(0, 500);
-                        const monster = mapMonsterIdToMonster(monsterId, this.dungeonType);
-                        
-                        if (monster) {
-                            this.monsters.push({ x, y, monster });
-                            placed = true;
-                        }
-                    }
-                    
-                    attempts++;
+                // Add corridor walls
+                if (y > 0 && dungeon.cells[y-1][x].type === 'wall') {
+                    dungeon.cells[y-1][x] = { type: 'wall', blocked: true };
+                }
+                if (y < dungeon.height-1 && dungeon.cells[y+1][x].type === 'wall') {
+                    dungeon.cells[y+1][x] = { type: 'wall', blocked: true };
                 }
             }
         }
-        
-        return this.monsters;
     }
-    
-    /**
-     * Populate the dungeon with treasure
-     */
-    populateTreasure() {
-        this.treasures = [];
+
+    createVerticalCorridor(dungeon, startY, endY, x) {
+        const minY = Math.min(startY, endY);
+        const maxY = Math.max(startY, endY);
         
-        // Place treasures in rooms or open areas
-        const treasureCount = Math.floor(this.rooms.length * this.treasureDensity * 0.7);
-        
-        for (let i = 0; i < treasureCount; i++) {
-            // Try to place each treasure
-            let attempts = 0;
-            let placed = false;
-            
-            // First try rooms
-            if (this.rooms.length > 0 && this.random.next() < 0.8) {
-                while (!placed && attempts < 10) {
-                    // Pick a random room
-                    const roomIndex = this.random.nextInt(0, this.rooms.length);
-                    const room = this.rooms[roomIndex];
-                    
-                    // Pick a random position in the room
-                    const x = this.random.nextInt(room.x, room.x + room.width);
-                    const y = this.random.nextInt(room.y, room.y + room.height);
-                    
-                    // Check if the position is valid
-                    if (!this.grid[y][x].blocked && 
-                        this.grid[y][x].type !== 'entrance' && 
-                        this.grid[y][x].type !== 'exit' &&
-                        this.grid[y][x].type !== 'water' &&
-                        !this.treasureAt(x, y) &&
-                        !this.monsterAt(x, y)) {
-                        
-                        // Generate treasure
-                        const treasureType = this.random.select(TREASURE_TYPES);
-                        let treasure;
-                        
-                        switch (treasureType) {
-                            case 'coins':
-                                treasure = generateCoinTreasure(this.random); // Explicitly pass random
-                                break;
-                            case 'gems':
-                                treasure = generateGemTreasure(this.random); // Explicitly pass random
-                                break;
-                            case 'items':
-                                treasure = generateItemTreasure(this.random); // Explicitly pass random
-                                break;
-                            case 'magic':
-                                treasure = generateMagicalTreasure(this.random); // Explicitly pass random
-                                break;
-                            case 'hoard':
-                                treasure = generateTreasureHoard(this.random); // Explicitly pass random
-                                break;
-                            default:
-                                treasure = generateTreasure(this.random); // Explicitly pass random
-                        }
-                        
-                        this.treasures.push({ x, y, treasure });
-                        placed = true;
-                    }
-                    
-                    attempts++;
-                }
-            }
-            
-            // If we couldn't place in a room, try anywhere
-            if (!placed) {
-                attempts = 0;
+        for (let y = minY; y <= maxY; y++) {
+            if (dungeon.cells[y][x].type === 'wall') {
+                dungeon.cells[y][x] = { type: 'corridor', blocked: false };
                 
-                while (!placed && attempts < 20) {
-                    // Pick a random position
-                    const x = this.random.nextInt(1, this.width - 1);
-                    const y = this.random.nextInt(1, this.height - 1);
+                // Add corridor walls
+                if (x > 0 && dungeon.cells[y][x-1].type === 'wall') {
+                    dungeon.cells[y][x-1] = { type: 'wall', blocked: true };
+                }
+                if (x < dungeon.width-1 && dungeon.cells[y][x+1].type === 'wall') {
+                    dungeon.cells[y][x+1] = { type: 'wall', blocked: true };
+                }
+            }
+        }
+    }
+
+    applyTheme(dungeon) {
+        // Apply theme-specific modifications
+        switch(dungeon.theme) {
+            case 'boneyard':
+                this.applyBoneyardTheme(dungeon);
+                break;
+            case 'darkzone':
+                this.applyDarkzoneTheme(dungeon);
+                break;
+            case 'standard':
+            default:
+                // Standard theme is the default
+                break;
+        }
+
+        // Add theme-specific features
+        this.addThemeFeatures(dungeon);
+
+        return dungeon;
+    }
+
+    applyBoneyardTheme(dungeon) {
+        // Convert standard rooms/corridors to bone crypt variants
+        for (let y = 0; y < dungeon.height; y++) {
+            for (let x = 0; x < dungeon.width; x++) {
+                const cell = dungeon.cells[y][x];
+                
+                if (cell.type === 'room') {
+                    cell.type = 'crypt';
+                } else if (cell.type === 'corridor') {
+                    cell.type = 'crypt-corridor';
+                }
+            }
+        }
+
+        // Add special features like tombs and altars
+        this.addBoneCryptFeatures(dungeon);
+    }
+
+    applyDarkzoneTheme(dungeon) {
+        // Convert standard rooms/corridors to dark dimension variants
+        for (let y = 0; y < dungeon.height; y++) {
+            for (let x = 0; x < dungeon.width; x++) {
+                const cell = dungeon.cells[y][x];
+                
+                if (cell.type === 'room') {
+                    cell.type = 'dark-room';
+                } else if (cell.type === 'corridor') {
+                    cell.type = 'dark-corridor';
+                }
+            }
+        }
+
+        // Add special features like void rifts and portals
+        this.addDarkzoneFeatures(dungeon);
+    }
+
+    addThemeFeatures(dungeon) {
+        // Add theme-specific decorative features based on dungeon theme
+        switch(dungeon.theme) {
+            case 'boneyard':
+                // Already handled in applyBoneyardTheme
+                break;
+            case 'darkzone':
+                // Already handled in applyDarkzoneTheme
+                break;
+            case 'standard':
+            default:
+                this.addStandardFeatures(dungeon);
+                break;
+        }
+    }
+
+    addBoneCryptFeatures(dungeon) {
+        const featureChance = 0.05; // 5% chance per suitable cell
+        const rooms = dungeon.rooms;
+        
+        // Add bone crypt features to some rooms
+        for (const room of rooms) {
+            // Select larger rooms for special features
+            if (room.width >= 4 && room.height >= 4) {
+                // Add tomb to center of room
+                if (this.random.next() < 0.3) {
+                    const centerX = Math.floor(room.x + room.width / 2);
+                    const centerY = Math.floor(room.y + room.height / 2);
                     
-                    // Check if the position is valid
-                    if (!this.grid[y][x].blocked && 
-                        this.grid[y][x].type !== 'wall' &&
-                        this.grid[y][x].type !== 'entrance' && 
-                        this.grid[y][x].type !== 'exit' &&
-                        this.grid[y][x].type !== 'water' &&
-                        !this.treasureAt(x, y) &&
-                        !this.monsterAt(x, y)) {
-                        
-                        // Generate treasure (simpler treasures in corridors)
-                        const treasureType = this.random.select(['coins', 'gems', 'items']);
-                        let treasure;
-                        
-                        switch (treasureType) {
-                            case 'coins':
-                                treasure = generateCoinTreasure(this.random); // Explicitly pass random
-                                break;
-                            case 'gems':
-                                treasure = generateGemTreasure(this.random); // Explicitly pass random
-                                break;
-                            case 'items':
-                                treasure = generateItemTreasure(this.random); // Explicitly pass random
-                                break;
-                            default:
-                                treasure = generateTreasure(this.random); // Explicitly pass random
-                        }
-                        
-                        this.treasures.push({ x, y, treasure });
-                        placed = true;
-                    }
+                    dungeon.cells[centerY][centerX].type = 'tomb';
+                }
+                
+                // Add altar to some rooms
+                if (this.random.next() < 0.2) {
+                    const altarX = room.x + 1 + Math.floor(this.random.next() * (room.width - 2));
+                    const altarY = room.y + 1 + Math.floor(this.random.next() * (room.height - 2));
                     
-                    attempts++;
+                    dungeon.cells[altarY][altarX].type = 'altar';
+                }
+            }
+        }
+    }
+
+    addDarkzoneFeatures(dungeon) {
+        const featureChance = 0.05; // 5% chance per suitable cell
+        const rooms = dungeon.rooms;
+        
+        // Add void portals to some rooms
+        for (const room of rooms) {
+            // Select larger rooms for portals
+            if (room.width >= 5 && room.height >= 5) {
+                // Add portal to center of room
+                if (this.random.next() < 0.3) {
+                    const centerX = Math.floor(room.x + room.width / 2);
+                    const centerY = Math.floor(room.y + room.height / 2);
+                    
+                    dungeon.cells[centerY][centerX].type = 'portal';
                 }
             }
         }
         
-        return this.treasures;
-    }
-    
-    /**
-     * Creates a room pattern that can be placed in the dungeon
-     * @param {number} width - Width of the pattern
-     * @param {number} height - Height of the pattern
-     * @param {string} patternType - Type of pattern to create
-     * @returns {Array} 2D grid representing the pattern
-     */
-    createRoomPattern(width, height, patternType = 'standard') {
-        return createRoomPattern(width, height, this.random, patternType);
-    }
-    
-    /**
-     * Places a room pattern in the dungeon grid
-     * @param {Array} pattern - The pattern to place
-     * @param {number} x - X coordinate for placement
-     * @param {number} y - Y coordinate for placement
-     * @returns {boolean} True if pattern was successfully placed
-     */
-    placeRoomPattern(pattern, x, y) {
-        if (!this.grid) {
-            throw new Error("Dungeon grid must be generated before placing patterns");
+        // Add void rifts to some corridors
+        for (let y = 1; y < dungeon.height - 1; y++) {
+            for (let x = 1; x < dungeon.width - 1; x++) {
+                if (dungeon.cells[y][x].type === 'dark-corridor' && this.random.next() < 0.02) {
+                    dungeon.cells[y][x].type = 'void';
+                }
+            }
         }
-        return placeRoomPattern(this.grid, pattern, x, y);
     }
-    
-    /**
-     * Creates a treasure vault in the dungeon
-     * @param {number} x - X coordinate for the vault
-     * @param {number} y - Y coordinate for the vault
-     * @param {number} size - Size of the vault
-     * @returns {Object} Vault details including position and treasures
-     */
-    createTreasureVault(x, y, size = 5) {
-        if (!this.grid) {
-            throw new Error("Dungeon grid must be generated before creating a vault");
-        }
-        const vault = createTreasureVault(this.grid, x, y, size, this.random);
+
+    addStandardFeatures(dungeon) {
+        // Add standard dungeon features like torches, pillars, etc.
+        const featureChance = 0.03; // 3% chance per suitable cell
         
-        // Add vault treasures to the dungeon's treasure list
-        if (vault && vault.treasures) {
-            this.treasures = [...this.treasures, ...vault.treasures];
+        for (let y = 1; y < dungeon.height - 1; y++) {
+            for (let x = 1; x < dungeon.width - 1; x++) {
+                if (dungeon.cells[y][x].type === 'room' && this.random.next() < featureChance) {
+                    // Add decorative features to room
+                    dungeon.cells[y][x].feature = this.random.next() < 0.5 ? 'torch' : 'pillar';
+                }
+            }
         }
-        
-        return vault;
-    }
-    
-    /**
-     * Creates a secret passage between two points in the dungeon
-     * @param {number} x1 - Starting X coordinate
-     * @param {number} y1 - Starting Y coordinate
-     * @param {number} x2 - Ending X coordinate
-     * @param {number} y2 - Ending Y coordinate
-     * @returns {boolean} True if passage was created successfully
-     */
-    createSecretPassage(x1, y1, x2, y2) {
-        if (!this.grid) {
-            throw new Error("Dungeon grid must be generated before creating secret passages");
-        }
-        return createSecretPassage(this.grid, x1, y1, x2, y2);
-    }
-    
-    /**
-     * Generate a monster based on dungeon parameters
-     * @param {number} challenge - Challenge rating (optional)
-     * @returns {Object} Generated monster
-     */
-    generateMonster(challenge = null) {
-        const monster = generateMonster(this.dungeonType, challenge, this.random);
-        return mapMonsterIdToMonster(monster.monsterId, this.dungeonType);
-    }
-    
-    /**
-     * Add keys and puzzles to the dungeon
-     * @param {number} complexity - Complexity level of puzzles/keys
-     * @returns {Object} Updated grid and key/puzzle positions
-     */
-    addKeysAndPuzzles(complexity = 1) {
-        if (!this.grid) {
-            throw new Error("Dungeon grid must be generated before adding keys and puzzles");
-        }
-        
-        const result = addKeysAndPuzzles(this.grid, complexity, this.random);
-        this.grid = result.grid;
-        return result;
-    }
-    
-    /**
-     * Check if there's a monster at a specific location
-     * @param {number} x - X coordinate
-     * @param {number} y - Y coordinate
-     * @returns {boolean} True if a monster exists at this location
-     */
-    monsterAt(x, y) {
-        return this.monsters.some(monster => monster.x === x && monster.y === y);
-    }
-    
-    /**
-     * Check if there's treasure at a specific location
-     * @param {number} x - X coordinate
-     * @param {number} y - Y coordinate
-     * @returns {boolean} True if treasure exists at this location
-     */
-    treasureAt(x, y) {
-        return this.treasures.some(treasure => treasure.x === x && treasure.y === y);
     }
 }

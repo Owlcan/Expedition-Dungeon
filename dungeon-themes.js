@@ -1,50 +1,39 @@
 export const DungeonThemes = {
     standard: {
-        walls: '#555555',
-        floor: '#e8e8e8',
-        corridor: '#d0d0d0',
-        door: '#8B4513',
-        patterns: ['rectangular', 'cross'],
-        features: ['columns', 'torches']
+        name: 'Standard Dungeon',
+        roomType: 'room',
+        corridorType: 'corridor',
+        colors: {
+            room: '#e8e8e8',
+            corridor: '#d0d0d0',
+            wall: '#555555'
+        }
     },
-    cave: {
-        walls: '#4a3b22',
-        floor: '#695438',
-        corridor: '#5c4831',
-        features: ['stalagmites', 'pools'],
-        patterns: ['organic', 'circular'],
-        generation: 'cellular'
+    boneyard: {
+        name: 'Boneyard Ossuary',
+        roomType: 'crypt',
+        corridorType: 'crypt-corridor',
+        colors: {
+            room: '#d8d0c8',
+            corridor: '#c0b8b0',
+            wall: '#8a7b6c',
+            altar: '#a3927d',
+            tomb: '#8a7b6c'
+        },
+        features: ['tombs', 'bones', 'altars']
     },
-    crypt: {
-        walls: '#686868',
-        floor: '#8a7b6c',
-        corridor: '#776b5e',
-        door: '#4a3b22',
-        patterns: ['symmetric', 'rectangular'],
-        features: ['tombs', 'crypts', 'bones']
-    },
-    temple: {
-        walls: '#a89b8c',
-        floor: '#c4b5a2',
-        corridor: '#b5a795',
-        door: '#8b7355',
-        patterns: ['symmetric', 'circular'],
-        features: ['altars', 'statues', 'pools']
-    },
-    mine: {
-        walls: '#595959',
-        floor: '#776d63',
-        corridor: '#6b6359',
-        patterns: ['organic', 'grid'],
-        features: ['supports', 'carts', 'ore']
-    },
-    castle: {
-        walls: '#6b6b6b',
-        floor: '#8c8c8c',
-        corridor: '#7a7a7a',
-        door: '#5c4d3b',
-        patterns: ['rectangular', 'symmetric'],
-        features: ['arrow_slits', 'fireplaces']
+    darkzone: {
+        name: 'Dark Dimension',
+        roomType: 'dark-room',
+        corridorType: 'dark-corridor',
+        colors: {
+            room: '#3a3a5e',
+            corridor: '#282840',
+            wall: '#1a1a2e',
+            void: '#1a1a2e',
+            portal: '#5a3696'
+        },
+        features: ['void', 'portals']
     }
 };
 

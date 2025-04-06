@@ -123,6 +123,15 @@ export class MapController {
         if (miniMap) {
             miniMap.addEventListener('click', this.handleMiniMapClick.bind(this), { capture: true });
         }
+
+        // Allow dungeon controls to work
+        const dungeonControls = document.querySelector('.dungeon-controls');
+        if (dungeonControls) {
+            dungeonControls.addEventListener('click', (e) => {
+                window._allowDungeonGeneration = true;
+                return true;
+            }, true);
+        }
     }
 
     handleDragStart(e) {
@@ -458,11 +467,11 @@ export class MapController {
     }
 
     enforceControl() {
-        // Let token controller handle all token events
+        // Skip all map controls if token is being dragged
         this._mouseMoveHandler = (e) => {
-            if (window._tokenController?.activeToken || e.target.closest('.cell-monster, .cell-player')) {
-                return;
-            }
+            if (window._tokenController?.draggedToken) return true;
+            if (e.target.closest('.cell-monster, .cell-player')) return true;
+            if (window._allowDungeonGeneration && e.target.closest('.dungeon-controls')) return true;
             
             if (!e._processedByController) {
                 e.preventDefault();
@@ -491,10 +500,12 @@ export class MapController {
     }
 
     validateDragOperation(element) {
-        // Allow all token dragging regardless of dungeon state
-        if (element.closest('.cell-monster, .cell-player')) {
-            return true;
-        }
+        // Always allow token operations
+        if (element.closest('.cell-monster, .cell-player')) return true;
+        if (window._tokenController?.draggedToken) return true;
+        
+        // Allow tokens and dungeon generation
+        if (window._allowDungeonGeneration && element.closest('.dungeon-controls')) return true;
         
         return element.hasAttribute('data-map-protocols-draggable');
     }
